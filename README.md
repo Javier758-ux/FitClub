@@ -1,86 +1,84 @@
 # FitClub
 
-- Sistema académico full-stack para la gestión de un gimnasio o centro deportivo: socios, planes, membresías, instructores, clases, horarios, reservas, asistencia y notificaciones.
+- Sistema académico full-stack para la gestión de **socios** y **membresías** de un gimnasio o centro deportivo.
 - **Proyecto PA-08 — Membresías, Clases y Reservas de Centro Deportivo** · Programación Aplicada · Gestión 2026-2.
+- Esta versión trabaja con **dos entidades relacionadas (Socio 1:N Membresía)** para demostrar la arquitectura completa de punta a punta: React → API REST → Spring Boot → PostgreSQL.
 
 ## 1. Problema
 
-- Un gimnasio que gestiona su operación de forma manual o dispersa (planillas, cuadernos, mensajes sueltos) no tiene una fuente única y validada de quiénes son sus socios ni qué membresía tiene cada uno, por lo que es fácil duplicar registros o dejar datos incompletos.
-- No hay visibilidad de qué membresías están vigentes, por vencer o vencidas.
-- Las clases (horarios, cupos, instructores) se coordinan sin un sistema que evite choques de horario o sobrecupo, y no queda registro confiable de la asistencia.
-- No existe un mecanismo para notificar a un socio, por ejemplo, que su membresía está por vencer o que una clase reservada cambió de horario.
+- Un gimnasio que registra a sus socios y sus membresías en planillas o cuadernos no tiene una fuente única y validada de quiénes son sus socios ni qué membresía tiene cada uno.
+- Es fácil duplicar socios, dejar datos incompletos (correo o teléfono inválidos) o registrar membresías sin un socio real asociado.
+- No hay visibilidad rápida de cuántos socios y membresías existen, de qué tipo son ni cuánto cuestan.
 
 ## 2. Objetivo del MVP
 
-- Construir un sistema web que centralice el registro y control de socios, membresías, clases, horarios, reservas y asistencia, con datos validados, relaciones consistentes entre entidades y una API REST documentada que pueda consumir cualquier cliente (web o móvil).
+- Construir un sistema web que permita registrar y consultar socios y sus membresías con datos validados, garantizando que cada membresía pertenezca a un socio existente (relación 1:N con integridad referencial en la base de datos).
 
 ## 3. Actores principales
 
-- **Administrador** — gestiona usuarios, planes, instructores, clases y horarios; tiene acceso completo.
-- **Recepción** — registra socios y membresías, gestiona reservas y asistencia en el día a día.
-- **Instructor** — consulta sus horarios y registra la asistencia de sus clases.
-- **Socio** — consulta sus membresías, reserva clases y recibe notificaciones.
+- **Personal del gimnasio (Administrador / Recepción)** — registra socios, registra membresías y consulta la información desde la aplicación web.
+- **Socio** — persona inscrita en el gimnasio; es la entidad principal del sistema y puede tener varias membresías a lo largo del tiempo.
 
 ## 4. Alcance inicial
 
-El MVP obligatorio comprende los siguientes módulos:
+El MVP comprende los siguientes módulos:
 
-- Socios
-- Planes
-- Membresías e historial de membresías
-- Instructores
-- Clases
-- Horarios de clase
-- Reservas de clase
-- Asistencia
-- Notificaciones
-- Usuarios, roles y autenticación
-- Dashboard y reportes
+- **Socios:** registrar, listar, buscar y consultar por id. Nombre, email único y teléfono de 7 a 10 dígitos.
+- **Membresías:** registrar, listar, filtrar y consultar por id. Tipo (`MENSUAL`, `TRIMESTRAL`, `ANUAL`), fechas de inicio y fin, precio y socio dueño.
+- **Dashboard:** total de socios, total de membresías, membresías mensuales y precio promedio.
+- **Manejo de errores:** respuestas consistentes 400 (datos inválidos), 404 (no existe), 409 (conflicto, por ejemplo email duplicado) y 500.
+- **Documentación de la API:** Swagger / OpenAPI.
 
-El equipo puede mejorar la experiencia de usuario o agregar facilidades, pero no puede eliminar componentes del alcance funcional cerrado sin autorización docente.
+### Endpoints de la API
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `GET` | `/api/socios` | Lista todos los socios |
+| `GET` | `/api/socios/{id}` | Consulta un socio (404 si no existe) |
+| `POST` | `/api/socios` | Registra un socio (201) |
+| `GET` | `/api/membresias` | Lista todas las membresías |
+| `GET` | `/api/membresias/{id}` | Consulta una membresía (404 si no existe) |
+| `POST` | `/api/membresias` | Registra una membresía para un socio existente (201) |
 
 ## 5. Fuera de alcance
 
-- **Procesamiento de pagos reales:** prohibido explícitamente por las reglas de negocio del proyecto. El sistema registra el precio de planes y membresías, pero no cobra.
-- Integraciones con servicios externos (pasarelas, mensajería SMS o correo real) que no formen parte del alcance funcional cerrado.
+- Autenticación, usuarios y roles (login).
+- Planes, clases, instructores, horarios, reservas, asistencia y notificaciones.
+- **Procesamiento de pagos reales:** prohibido por las reglas de negocio del proyecto. El sistema registra el precio de la membresía, pero no cobra.
 
 Cualquier exclusión concreta adicional deberá registrarse como supuesto o decisión del proyecto y validarse con el docente.
 
 ## 6. Stack objetivo del semestre
 
-- Backend: Java 21 + Spring Boot (arquitectura hexagonal)
-- Base de datos: PostgreSQL + Flyway
-- Web: React + TypeScript + Vite
-- Móvil: React Native + TypeScript
+- Backend: Java 21 + Spring Boot (arquitectura hexagonal: puertos IN/OUT y adaptadores)
+- Persistencia: Spring Data JPA / Hibernate (`ddl-auto=validate`)
+- Base de datos: PostgreSQL, schema `fitclub`
+- Web: React + TypeScript + Vite + React Router
 - Pruebas API: Postman / Swagger (OpenAPI)
 - Pruebas frontend: Vitest + Testing Library
-- Contenedores: Docker / Docker Compose
 - Versionado: Git + GitHub
-- CI: GitHub Actions
 - IDEs: IntelliJ IDEA (backend), WebStorm (frontend), DataGrip (base de datos)
 
 ## 7. Estado actual
 
-- **Primer parcial (backend):** modelo de dominio en Java, contrato de repositorio, Spring Boot con API REST, persistencia JPA en PostgreSQL, arquitectura hexagonal (puertos IN/OUT y adaptadores), relación 1:N Socio–Membresía, manejo global de errores (400, 404, 409, 500) y documentación Swagger.
-- **Segundo parcial (frontend):** aplicación web en React + TypeScript que consume la API: navegación, formularios con validación, CRUD de Socio y Membresía, hooks reutilizables, búsqueda, filtros, paginación, modales y pruebas automatizadas.
+- **Backend:** API REST de Socio y Membresía con arquitectura hexagonal, validación con Jakarta Validation, persistencia JPA en PostgreSQL, relación 1:N Socio–Membresía, manejo global de errores (`GlobalExceptionHandler`), CORS configurado para el frontend y documentación Swagger.
+- **Frontend:** aplicación web en React + TypeScript con layout y menú (Inicio, Socios, Membresías, Acerca), formularios controlados con validación, búsqueda, filtros, paginación, dashboard, `ErrorBoundary`, hooks reutilizables (`useAsyncList`) y pruebas automatizadas con Vitest.
 
 ## 8. Documentación
 
 - `docs/01-vision/vision-v0.1.md` — visión, problema, objetivos y alcance.
-- `Proyecto/Backend/Intellij/PruebaFitclub/README.md` — cómo levantar el backend, variables de entorno y migraciones.
-- `Proyecto/Backend/Intellij/PruebaFitclub/src/main/resources/db/migration/` — scripts Flyway de la base de datos.
 - `Pasos y guías/` — guías del equipo (Git, GitHub, IntelliJ, DataGrip, Postman, Swagger, arquitectura hexagonal, defensa individual).
 - `LAbs/Mapas Conceptuales/` — mapas conceptuales por bloque temático.
 
-### Cómo ejecutar el backend
+### Cómo ejecutarlo
 
 ```bash
 git clone https://github.com/Javier758-ux/FitClub.git
 ```
 
-1. Crear la base de datos en PostgreSQL (con DataGrip) según `Pasos y guías/DataGrip.md`.
-2. Abrir `Proyecto/Backend/Intellij/PruebaFitclub` en IntelliJ y ejecutar `PruebaFitclubApplication`.
-3. La API queda en `http://localhost:8080` y Swagger en `http://localhost:8080/swagger-ui/index.html`.
+1. **Base de datos (DataGrip):** conectado como `postgres`, crear el rol `pruebafitclub_admin`, la base `pruebafitclub`, el schema `fitclub` y las tablas `socio` y `membresia`. Como el proyecto usa `ddl-auto=validate`, Hibernate no crea tablas: la base es la fuente de verdad.
+2. **Backend (IntelliJ):** ejecutar `PruebaFitclubApplication`. La API queda en `http://localhost:8080` y Swagger en `http://localhost:8080/swagger-ui/index.html`.
+3. **Frontend (WebStorm):** crear `.env.development` con `VITE_API_URL=http://localhost:8080/api`, luego `npm install` y `npm run dev`. La aplicación queda en `http://localhost:5173`.
 
 ## 9. Regla de trabajo
 
@@ -95,20 +93,6 @@ Cada cambio importante debe ser comprensible, trazable y defendible. El reposito
 ```mermaid
 erDiagram
     SOCIO ||--o{ MEMBRESIA : "tiene"
-    PLAN ||--o{ MEMBRESIA : "define"
-    MEMBRESIA ||--o{ HISTORIAL_MEMBRESIA : "registra cambios"
-
-    INSTRUCTOR ||--o{ HORARIO_CLASE : "dicta"
-    CLASE ||--o{ HORARIO_CLASE : "se programa en"
-
-    SOCIO ||--o{ RESERVA_CLASE : "realiza"
-    HORARIO_CLASE ||--o{ RESERVA_CLASE : "recibe"
-    RESERVA_CLASE ||--o| ASISTENCIA : "genera"
-
-    SOCIO ||--o{ NOTIFICACION : "recibe"
-
-    SOCIO |o--o| USUARIO : "accede como"
-    INSTRUCTOR |o--o| USUARIO : "accede como"
 
     SOCIO {
         BIGINT id PK
@@ -118,94 +102,19 @@ erDiagram
         DATE fecha_registro
     }
 
-    PLAN {
-        BIGINT id PK
-        VARCHAR nombre UK
-        VARCHAR descripcion
-        NUMERIC precio
-        INTEGER duracion_dias
-    }
-
     MEMBRESIA {
         BIGINT id PK
-        BIGINT socio_id FK
-        BIGINT plan_id FK
+        VARCHAR tipo "MENSUAL | TRIMESTRAL | ANUAL"
         DATE fecha_inicio
         DATE fecha_fin
-        VARCHAR estado
-    }
-
-    HISTORIAL_MEMBRESIA {
-        BIGINT id PK
-        BIGINT membresia_id FK
-        VARCHAR estado_anterior
-        VARCHAR estado_nuevo
-        TIMESTAMP fecha_cambio
-        VARCHAR motivo
-        VARCHAR usuario_email
-    }
-
-    INSTRUCTOR {
-        BIGINT id PK
-        VARCHAR nombre
-        VARCHAR email UK
-        VARCHAR telefono
-        VARCHAR especialidad
-    }
-
-    CLASE {
-        BIGINT id PK
-        VARCHAR nombre
-        VARCHAR descripcion
-        INTEGER cupo_maximo
-    }
-
-    HORARIO_CLASE {
-        BIGINT id PK
-        BIGINT clase_id FK
-        BIGINT instructor_id FK
-        DATE fecha
-        TIME hora_inicio
-        TIME hora_fin
-    }
-
-    RESERVA_CLASE {
-        BIGINT id PK
+        NUMERIC precio
         BIGINT socio_id FK
-        BIGINT horario_clase_id FK
-        TIMESTAMP fecha_reserva
-        VARCHAR estado
-        TIMESTAMP fecha_cancelacion
-        BOOLEAN cancelacion_tardia
-    }
-
-    ASISTENCIA {
-        BIGINT id PK
-        BIGINT reserva_clase_id FK
-        TIMESTAMP fecha_registro
-        BOOLEAN presente
-    }
-
-    NOTIFICACION {
-        BIGINT id PK
-        BIGINT socio_id FK
-        VARCHAR titulo
-        VARCHAR mensaje
-        TIMESTAMP fecha_envio
-        BOOLEAN leida
-    }
-
-    USUARIO {
-        BIGINT id PK
-        VARCHAR nombre
-        VARCHAR email UK
-        VARCHAR password
-        VARCHAR rol
-        BOOLEAN activo
-        BIGINT socio_id FK
-        BIGINT instructor_id FK
     }
 ```
+
+- **Relación 1:N:** un socio puede tener muchas membresías; cada membresía pertenece a un solo socio.
+- La clave foránea `socio_id` vive en la tabla hija (`membresia`) y referencia a `socio.id`.
+- `email` es único: no se pueden registrar dos socios con el mismo correo (409 Conflict).
 
 ## 11. Documentación Técnica
 
