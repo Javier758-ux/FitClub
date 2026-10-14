@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fitclub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: newfitclub
+      POSTGRES_USER: bdfitclub
+      POSTGRES_PASSWORD: ${FITCLUB_DB_PASSWORD:-12345}
+    ports:
+      - "5432:5432"
+    volumes:
+      - fitclub_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bdfitclub -d newfitclub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  fitclub_postgres_data:
