@@ -1,13 +1,20 @@
 import {
-    useState
-} from "react";
+    BrowserRouter,
+    Navigate,
+    Route,
+    Routes
+} from "react-router-dom";
 
 import {
-    BrowserRouter,
-    Routes,
-    Route,
-    Navigate
-} from "react-router-dom";
+    useAuth
+} from "../auth/AuthContext";
+
+import ProtectedRoute
+    from "../auth/ProtectedRoute";
+
+import {
+    PERMISOS_RUTA
+} from "../auth/permissions";
 
 import MainLayout
     from "../layouts/MainLayout";
@@ -48,31 +55,43 @@ import NotificacionesPage
 import ReportesPage
     from "../pages/ReportesPage";
 
-import {
-    authService
-} from "../services/authService";
+import ForbiddenPage
+    from "../pages/ForbiddenPage";
 
-export default function AppRoutes() {
+function LoginRoute() {
 
-    const [
-        autenticado,
-        setAutenticado
-    ] =
-        useState(
-            () =>
-                authService
-                    .haySesion()
-        );
+    const {
+        usuario,
+        cargandoSesion
+    } = useAuth();
 
-    function cerrarSesion() {
+    if (cargandoSesion) {
 
-        authService
-            .cerrarSesion();
-
-        setAutenticado(
-            false
+        return (
+            <main
+                style={{
+                    padding: 32
+                }}
+            >
+                Verificando sesión...
+            </main>
         );
     }
+
+    if (usuario) {
+
+        return (
+            <Navigate
+                to="/"
+                replace
+            />
+        );
+    }
+
+    return <LoginPage />;
+}
+
+export default function AppRoutes() {
 
     return (
         <BrowserRouter>
@@ -82,129 +101,216 @@ export default function AppRoutes() {
                 <Route
                     path="/login"
                     element={
-                        autenticado
-                            ? (
-                                <Navigate
-                                    to="/"
-                                    replace
-                                />
-                            )
-                            : (
-                                <LoginPage
-                                    onLogin={() =>
-                                        setAutenticado(
-                                            true
-                                        )
-                                    }
-                                />
-                            )
+                        <LoginRoute />
                     }
                 />
 
                 <Route
                     element={
-                        autenticado
-                            ? (
-                                <MainLayout
-                                    onLogout={
-                                        cerrarSesion
-                                    }
-                                />
-                            )
-                            : (
-                                <Navigate
-                                    to="/login"
-                                    replace
-                                />
-                            )
+                        <ProtectedRoute />
                     }
                 >
 
                     <Route
-                        index
                         element={
-                            <DashboardPage />
+                            <MainLayout />
                         }
-                    />
+                    >
 
-                    <Route
-                        path="socios"
-                        element={
-                            <SociosPage />
-                        }
-                    />
+                        <Route
+                            index
+                            element={
+                                <DashboardPage />
+                            }
+                        />
 
-                    <Route
-                        path="planes"
-                        element={
-                            <PlanesPage />
-                        }
-                    />
+                        <Route
+                            path="sin-permiso"
+                            element={
+                                <ForbiddenPage />
+                            }
+                        />
 
-                    <Route
-                        path="membresias"
-                        element={
-                            <MembresiasPage />
-                        }
-                    />
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    roles={
+                                        PERMISOS_RUTA.socios
+                                    }
+                                />
+                            }
+                        >
+                            <Route
+                                path="socios"
+                                element={
+                                    <SociosPage />
+                                }
+                            />
+                        </Route>
 
-                    <Route
-                        path="instructores"
-                        element={
-                            <InstructoresPage />
-                        }
-                    />
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    roles={
+                                        PERMISOS_RUTA.planes
+                                    }
+                                />
+                            }
+                        >
+                            <Route
+                                path="planes"
+                                element={
+                                    <PlanesPage />
+                                }
+                            />
+                        </Route>
 
-                    <Route
-                        path="clases"
-                        element={
-                            <ClasesPage />
-                        }
-                    />
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    roles={
+                                        PERMISOS_RUTA.membresias
+                                    }
+                                />
+                            }
+                        >
+                            <Route
+                                path="membresias"
+                                element={
+                                    <MembresiasPage />
+                                }
+                            />
+                        </Route>
 
-                    <Route
-                        path="horarios"
-                        element={
-                            <HorariosPage />
-                        }
-                    />
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    roles={
+                                        PERMISOS_RUTA.instructores
+                                    }
+                                />
+                            }
+                        >
+                            <Route
+                                path="instructores"
+                                element={
+                                    <InstructoresPage />
+                                }
+                            />
+                        </Route>
 
-                    <Route
-                        path="reservas"
-                        element={
-                            <ReservasPage />
-                        }
-                    />
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    roles={
+                                        PERMISOS_RUTA.clases
+                                    }
+                                />
+                            }
+                        >
+                            <Route
+                                path="clases"
+                                element={
+                                    <ClasesPage />
+                                }
+                            />
+                        </Route>
 
-                    <Route
-                        path="asistencias"
-                        element={
-                            <AsistenciasPage />
-                        }
-                    />
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    roles={
+                                        PERMISOS_RUTA.horarios
+                                    }
+                                />
+                            }
+                        >
+                            <Route
+                                path="horarios"
+                                element={
+                                    <HorariosPage />
+                                }
+                            />
+                        </Route>
 
-                    <Route
-                        path="notificaciones"
-                        element={
-                            <NotificacionesPage />
-                        }
-                    />
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    roles={
+                                        PERMISOS_RUTA.reservas
+                                    }
+                                />
+                            }
+                        >
+                            <Route
+                                path="reservas"
+                                element={
+                                    <ReservasPage />
+                                }
+                            />
+                        </Route>
 
-                    <Route
-                        path="reportes"
-                        element={
-                            <ReportesPage />
-                        }
-                    />
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    roles={
+                                        PERMISOS_RUTA.asistencias
+                                    }
+                                />
+                            }
+                        >
+                            <Route
+                                path="asistencias"
+                                element={
+                                    <AsistenciasPage />
+                                }
+                            />
+                        </Route>
 
-                    <Route
-                        path="*"
-                        element={
-                            <h1>
-                                Página no encontrada
-                            </h1>
-                        }
-                    />
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    roles={
+                                        PERMISOS_RUTA.notificaciones
+                                    }
+                                />
+                            }
+                        >
+                            <Route
+                                path="notificaciones"
+                                element={
+                                    <NotificacionesPage />
+                                }
+                            />
+                        </Route>
+
+                        <Route
+                            element={
+                                <ProtectedRoute
+                                    roles={
+                                        PERMISOS_RUTA.reportes
+                                    }
+                                />
+                            }
+                        >
+                            <Route
+                                path="reportes"
+                                element={
+                                    <ReportesPage />
+                                }
+                            />
+                        </Route>
+
+                        <Route
+                            path="*"
+                            element={
+                                <h1>
+                                    Página no encontrada
+                                </h1>
+                            }
+                        />
+
+                    </Route>
 
                 </Route>
 

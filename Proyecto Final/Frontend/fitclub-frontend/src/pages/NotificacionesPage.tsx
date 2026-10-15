@@ -31,12 +31,8 @@ import {
 } from "../components/ui/SelectFilter";
 
 import {
-    authService
-} from "../services/authService";
-
-import type {
-    UsuarioActual
-} from "../services/authService";
+    useAuth
+} from "../auth/AuthContext";
 
 import {
     notificacionService
@@ -62,13 +58,9 @@ type FiltroLectura =
 
 export default function NotificacionesPage() {
 
-    const [
-        usuario,
-        setUsuario
-    ] =
-        useState<UsuarioActual | null>(
-            null
-        );
+    const {
+        usuario
+    } = useAuth();
 
     const [
         notificaciones,
@@ -152,6 +144,13 @@ export default function NotificacionesPage() {
 
     useEffect(() => {
 
+        if (!usuario) {
+            return;
+        }
+
+        const rol =
+            usuario.rol;
+
         let activo =
             true;
 
@@ -165,25 +164,8 @@ export default function NotificacionesPage() {
                 setCargando(true);
                 setError("");
 
-                const usuarioActual =
-                    await authService
-                        .obtenerUsuarioActual();
-
-                if (!activo) {
-                    return;
-                }
-
-                setUsuario(
-                    usuarioActual
-                );
-
-                /*
-                 * SOCIO:
-                 * solo consulta sus propias
-                 * notificaciones.
-                 */
                 if (
-                    usuarioActual.rol ===
+                    rol ===
                     "SOCIO"
                 ) {
 
@@ -203,16 +185,10 @@ export default function NotificacionesPage() {
                     return;
                 }
 
-                /*
-                 * ADMINISTRADOR / RECEPCION:
-                 * consulta todas y carga
-                 * los socios para mostrar
-                 * sus nombres.
-                 */
                 if (
-                    usuarioActual.rol ===
+                    rol ===
                     "ADMINISTRADOR" ||
-                    usuarioActual.rol ===
+                    rol ===
                     "RECEPCION"
                 ) {
 
@@ -280,7 +256,7 @@ export default function NotificacionesPage() {
             controller.abort();
         };
 
-    }, []);
+    }, [usuario]);
 
     useEffect(() => {
 
@@ -445,7 +421,6 @@ export default function NotificacionesPage() {
                     (notificacion) =>
                         !notificacion.leida
                 ).length,
-
             [notificaciones]
         );
 
@@ -548,7 +523,6 @@ export default function NotificacionesPage() {
             setProcesandoId(
                 null
             );
-
         }
     }
 
@@ -604,8 +578,9 @@ export default function NotificacionesPage() {
 
         } finally {
 
-            setRecargando(false);
-
+            setRecargando(
+                false
+            );
         }
     }
 
@@ -626,11 +601,6 @@ export default function NotificacionesPage() {
         );
     }
 
-    /*
-     * El backend actual no autoriza
-     * ningún endpoint de notificaciones
-     * para INSTRUCTOR.
-     */
     if (
         usuario?.rol ===
         "INSTRUCTOR"

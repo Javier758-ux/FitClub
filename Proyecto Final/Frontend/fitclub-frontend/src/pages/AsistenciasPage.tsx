@@ -4,6 +4,10 @@ import {
     useState
 } from "react";
 
+import {
+    useAuth
+} from "../auth/AuthContext";
+
 import AsistenciaForm
     from "../components/AsistenciaForm";
 
@@ -12,10 +16,6 @@ import AsistenciaTable
 
 import ParticipantesAsistencia
     from "../components/ParticipantesAsistencia";
-
-import {
-    Button
-} from "../components/ui/Button";
 
 import {
     EmptyState
@@ -36,14 +36,6 @@ import {
 import {
     asistenciaService
 } from "../services/asistenciaService";
-
-import {
-    authService
-} from "../services/authService";
-
-import type {
-    UsuarioActual
-} from "../services/authService";
 
 import {
     claseService
@@ -95,13 +87,9 @@ function fechaLocalISO(): string {
 
 export default function AsistenciasPage() {
 
-    const [
-        usuario,
-        setUsuario
-    ] =
-        useState<UsuarioActual | null>(
-            null
-        );
+    const {
+        usuario
+    } = useAuth();
 
     const [
         asistencias,
@@ -155,6 +143,10 @@ export default function AsistenciasPage() {
     ] =
         useState(false);
 
+    /*
+     * Datos específicos de la vista
+     * del INSTRUCTOR.
+     */
     const [
         fechaInstructor,
         setFechaInstructor
@@ -200,12 +192,14 @@ export default function AsistenciasPage() {
         );
 
     /*
-     * El backend permite al instructor
-     * registrar asistencia, pero no tiene
-     * GET de sus asistencias.
+     * El backend actual permite al
+     * instructor registrar asistencia,
+     * pero no dispone de un GET de
+     * sus asistencias registradas.
      *
-     * Guardamos temporalmente las que
-     * registra durante esta sesión.
+     * Por eso mantenemos temporalmente
+     * los registros hechos durante
+     * la sesión actual.
      */
     const [
         registrosLocales,
@@ -259,13 +253,25 @@ export default function AsistenciasPage() {
         useState("");
 
     /*
-     * Primero obtenemos el usuario
-     * autenticado y cargamos los datos
-     * correspondientes a su rol.
+     * El usuario ya viene de AuthContext.
+     *
+     * Ya NO llamamos nuevamente:
+     *
+     * GET /api/auth/me
+     *
+     * desde esta página.
      */
     useEffect(() => {
 
-        let activo = true;
+        if (!usuario) {
+            return;
+        }
+
+        const rol =
+            usuario.rol;
+
+        let activo =
+            true;
 
         const controller =
             new AbortController();
@@ -274,31 +280,24 @@ export default function AsistenciasPage() {
 
             try {
 
-                setCargando(true);
-                setError("");
-
-                const usuarioActual =
-                    await authService
-                        .obtenerUsuarioActual();
-
-                if (!activo) {
-                    return;
-                }
-
-                setUsuario(
-                    usuarioActual
+                setCargando(
+                    true
                 );
 
+                setError("");
+
                 /*
-                 * INSTRUCTOR solamente necesita
+                 * INSTRUCTOR:
+                 *
+                 * solamente necesitamos
                  * el catálogo de clases.
                  *
-                 * Sus horarios se cargan en
-                 * otro Effect dependiendo
-                 * de la fecha seleccionada.
+                 * Sus horarios se cargan
+                 * posteriormente según
+                 * la fecha seleccionada.
                  */
                 if (
-                    usuarioActual.rol ===
+                    rol ===
                     "INSTRUCTOR"
                 ) {
 
@@ -321,14 +320,22 @@ export default function AsistenciasPage() {
                 }
 
                 /*
-                 * Administración y Recepción
+                 * ADMINISTRADOR / RECEPCION:
+                 *
                  * pueden consultar todas las
-                 * asistencias y relaciones.
+                 * asistencias y necesitan
+                 * resolver:
+                 *
+                 * asistencia
+                 * → reserva
+                 * → socio
+                 * → horario
+                 * → clase
                  */
                 if (
-                    usuarioActual.rol ===
+                    rol ===
                     "ADMINISTRADOR" ||
-                    usuarioActual.rol ===
+                    rol ===
                     "RECEPCION"
                 ) {
 
@@ -427,11 +434,14 @@ export default function AsistenciasPage() {
             controller.abort();
         };
 
-    }, []);
+    }, [usuario]);
 
     /*
-     * Si el instructor cambia la fecha,
-     * consultamos únicamente sus horarios.
+     * INSTRUCTOR:
+     *
+     * cada vez que cambia la fecha,
+     * consultamos únicamente los horarios
+     * asignados al instructor autenticado.
      */
     useEffect(() => {
 
@@ -445,7 +455,8 @@ export default function AsistenciasPage() {
         const controller =
             new AbortController();
 
-        let activo = true;
+        let activo =
+            true;
 
         async function cargarHorariosDelDia() {
 
@@ -506,6 +517,10 @@ export default function AsistenciasPage() {
         usuario?.rol
     ]);
 
+    /*
+     * Volver a página 1 cuando
+     * cambia algún filtro.
+     */
     useEffect(() => {
 
         setPage(1);
@@ -516,6 +531,10 @@ export default function AsistenciasPage() {
         pageSize
     ]);
 
+    /*
+     * Ocultar mensajes de éxito
+     * automáticamente.
+     */
     useEffect(() => {
 
         if (!mensaje) {
@@ -730,6 +749,11 @@ export default function AsistenciasPage() {
             pageSize
         ]);
 
+    /*
+     * ADMINISTRADOR / RECEPCION
+     *
+     * Registro general de asistencia.
+     */
     async function guardarAsistencia(
         datos:
         AsistenciaRequest
@@ -760,10 +784,11 @@ export default function AsistenciasPage() {
     }
 
     /*
-     * INSTRUCTOR:
-     * al seleccionar un horario,
-     * obtenemos solamente sus reservas
-     * activas.
+     * INSTRUCTOR
+     *
+     * Al seleccionar uno de sus horarios,
+     * cargamos solamente las reservas
+     * activas correspondientes a esa clase.
      */
     async function seleccionarHorario(
         horarioId: string
@@ -819,10 +844,16 @@ export default function AsistenciasPage() {
             setCargandoParticipantes(
                 false
             );
-
         }
     }
 
+    /*
+     * INSTRUCTOR
+     *
+     * Registra Presente/Ausente
+     * utilizando el endpoint protegido
+     * de sus propias clases.
+     */
     async function registrarPorInstructor(
         reserva: ReservaApi,
         presente: boolean
@@ -891,7 +922,6 @@ export default function AsistenciasPage() {
             setProcesandoReservaId(
                 null
             );
-
         }
     }
 
@@ -913,8 +943,12 @@ export default function AsistenciasPage() {
     }
 
     /*
-     * El SOCIO no registra asistencia
-     * desde web.
+     * Esta vista normalmente no será
+     * alcanzada porque ProtectedRoute
+     * ya bloquea al SOCIO.
+     *
+     * La dejamos igualmente como
+     * protección visual adicional.
      */
     if (
         usuario?.rol ===
@@ -940,7 +974,9 @@ export default function AsistenciasPage() {
     }
 
     /*
+     * ============================
      * VISTA DEL INSTRUCTOR
+     * ============================
      */
     if (
         usuario?.rol ===
@@ -1169,33 +1205,30 @@ export default function AsistenciasPage() {
 
                 <div className="asistencias-warning">
 
-                    El backend actual permite
-                    al instructor registrar
-                    asistencia, pero no consultar
-                    después su listado de
-                    asistencias registradas.
+                    El backend actual permite al
+                    instructor registrar asistencia,
+                    pero todavía no dispone de un
+                    endpoint GET específico para
+                    recuperar posteriormente todas
+                    sus asistencias registradas.
 
-                    Por eso, tras recargar la
-                    página, React no puede
-                    reconstruir esos estados desde
-                    la API. Si intenta registrar
-                    nuevamente la misma reserva,
-                    Spring Boot rechazará el
-                    duplicado.
+                    Por eso los estados registrados
+                    durante esta pantalla se conservan
+                    temporalmente en React.
 
                 </div>
 
                 <p className="asistencias-note">
 
-                    El endpoint de participantes
-                    devuelve el ID del socio, pero
-                    no su nombre. Además, el rol
-                    INSTRUCTOR no tiene permiso
-                    para consultar `/api/socios`.
+                    La lista de participantes
+                    devuelve actualmente el ID del
+                    socio.
 
-                    Por eso mostramos temporalmente
-                    “Socio #ID” respetando el
-                    contrato real del backend.
+                    El rol INSTRUCTOR no puede
+                    consultar directamente el
+                    catálogo administrativo de
+                    socios, por lo que se muestra
+                    “Socio #ID”.
 
                 </p>
 
@@ -1204,7 +1237,9 @@ export default function AsistenciasPage() {
     }
 
     /*
-     * VISTA ADMINISTRADOR / RECEPCION
+     * ============================
+     * ADMINISTRADOR / RECEPCION
+     * ============================
      */
     return (
         <section className="asistencias-page">
@@ -1227,8 +1262,9 @@ export default function AsistenciasPage() {
 
                 <div className="asistencias-actions">
 
-                    <Button
+                    <button
                         type="button"
+                        className="btn-primary"
                         onClick={() =>
                             setMostrarFormulario(
                                 (actual) =>
@@ -1241,7 +1277,7 @@ export default function AsistenciasPage() {
                             ? "Cerrar formulario"
                             : "+ Registrar asistencia"}
 
-                    </Button>
+                    </button>
 
                 </div>
 
@@ -1339,13 +1375,14 @@ export default function AsistenciasPage() {
                                     "AUSENTE"
                             }
                         ]}
-                        onChange={(value) =>
-                            setFiltroResultado(
-                                value as
-                                    "" |
-                                    "PRESENTE" |
-                                    "AUSENTE"
-                            )
+                        onChange={
+                            (value) =>
+                                setFiltroResultado(
+                                    value as
+                                        "" |
+                                        "PRESENTE" |
+                                        "AUSENTE"
+                                )
                         }
                     />
 
@@ -1370,12 +1407,13 @@ export default function AsistenciasPage() {
                                 label: "20"
                             }
                         ]}
-                        onChange={(value) =>
-                            setPageSize(
-                                Number(
-                                    value
+                        onChange={
+                            (value) =>
+                                setPageSize(
+                                    Number(
+                                        value
+                                    )
                                 )
-                            )
                         }
                     />
 

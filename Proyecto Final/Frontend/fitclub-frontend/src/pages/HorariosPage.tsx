@@ -4,11 +4,30 @@ import {
     useState
 } from "react";
 
+import {
+    useAuth
+} from "../auth/AuthContext";
+
 import HorarioForm
     from "../components/HorarioForm";
 
 import HorarioTable
     from "../components/HorarioTable";
+
+import InstructorCalendar
+    from "../components/InstructorCalendar";
+
+import {
+    Button
+} from "../components/ui/Button";
+
+import {
+    EmptyState
+} from "../components/ui/EmptyState";
+
+import {
+    Pagination
+} from "../components/ui/Pagination";
 
 import {
     SearchInput
@@ -19,54 +38,58 @@ import {
 } from "../components/ui/SelectFilter";
 
 import {
-    Pagination
-} from "../components/ui/Pagination";
+    useHorarios
+} from "../hooks/useHorarios";
 
-import {
-    EmptyState
-} from "../components/ui/EmptyState";
-
-import {
-    Button
-} from "../components/ui/Button";
-
-import {
-    horarioService
-} from "../services/horarioService";
+import type {
+    ClaseApi,
+    HorarioApi,
+    HorarioRequest,
+    InstructorApi
+} from "../models/ApiModels";
 
 import {
     claseService
 } from "../services/claseService";
 
 import {
-    instructorService
-} from "../services/instructorService";
+    horarioService
+} from "../services/horarioService";
 
 import {
-    useHorarios
-} from "../hooks/useHorarios";
+    instructorService
+} from "../services/instructorService";
 
 import {
     isAbortError
 } from "../utils/isAbortError";
 
-import type {
-    ClaseApi,
-    InstructorApi,
-    HorarioApi,
-    HorarioRequest
-} from "../models/ApiModels";
-
 import "./Horarios.css";
+
+type VistaHorarios =
+    | "LISTA"
+    | "AGENDA";
 
 export default function HorariosPage() {
 
     const {
+        tieneRol
+    } = useAuth();
+
+    const puedeAdministrar =
+        tieneRol(
+            "ADMINISTRADOR"
+        );
+
+    const {
         data: horarios,
         setData: setHorarios,
-        loading: cargandoHorarios,
-        error: errorHorarios,
-        setError: setErrorHorarios,
+        loading:
+            cargandoHorarios,
+        error:
+            errorHorarios,
+        setError:
+            setErrorHorarios,
         reload
     } = useHorarios();
 
@@ -74,18 +97,23 @@ export default function HorariosPage() {
         clases,
         setClases
     ] =
-        useState<ClaseApi[]>([]);
+        useState<ClaseApi[]>(
+            []
+        );
 
     const [
         instructores,
         setInstructores
     ] =
-        useState<InstructorApi[]>([]);
+        useState<InstructorApi[]>(
+            []
+        );
 
     const [
         cargandoCatalogos,
         setCargandoCatalogos
-    ] = useState(true);
+    ] =
+        useState(true);
 
     const [
         horarioIdEditar,
@@ -106,64 +134,84 @@ export default function HorariosPage() {
     const [
         cargandoDetalle,
         setCargandoDetalle
-    ] = useState(false);
+    ] =
+        useState(false);
 
     const [
         guardando,
         setGuardando
-    ] = useState(false);
+    ] =
+        useState(false);
 
     const [
         mostrarFormulario,
         setMostrarFormulario
-    ] = useState(false);
+    ] =
+        useState(false);
+
+    const [
+        vista,
+        setVista
+    ] =
+        useState<VistaHorarios>(
+            "LISTA"
+        );
 
     const [
         search,
         setSearch
-    ] = useState("");
+    ] =
+        useState("");
 
     const [
         filtroClase,
         setFiltroClase
-    ] = useState("");
+    ] =
+        useState("");
 
     const [
         filtroInstructor,
         setFiltroInstructor
-    ] = useState("");
+    ] =
+        useState("");
 
     const [
         page,
         setPage
-    ] = useState(1);
+    ] =
+        useState(1);
 
     const [
         pageSize,
         setPageSize
-    ] = useState(10);
+    ] =
+        useState(10);
 
     const [
         errorCatalogos,
         setErrorCatalogos
-    ] = useState("");
+    ] =
+        useState("");
 
     const [
         errorOperacion,
         setErrorOperacion
-    ] = useState("");
+    ] =
+        useState("");
 
     const [
         mensaje,
         setMensaje
-    ] = useState("");
+    ] =
+        useState("");
 
     useEffect(() => {
 
         const controller =
             new AbortController();
 
-        let ignore = false;
+        let ignore =
+            false;
 
         async function cargarCatalogos() {
 
@@ -173,13 +221,16 @@ export default function HorariosPage() {
                     true
                 );
 
-                setErrorCatalogos("");
+                setErrorCatalogos(
+                    ""
+                );
 
                 const [
                     paginaClases,
                     paginaInstructores
                 ] =
                     await Promise.all([
+
                         claseService.listar(
                             0,
                             100,
@@ -191,6 +242,7 @@ export default function HorariosPage() {
                             100,
                             controller.signal
                         )
+
                     ]);
 
                 if (!ignore) {
@@ -208,7 +260,9 @@ export default function HorariosPage() {
 
                 if (
                     !ignore &&
-                    !isAbortError(err)
+                    !isAbortError(
+                        err
+                    )
                 ) {
 
                     setErrorCatalogos(
@@ -239,6 +293,7 @@ export default function HorariosPage() {
             ignore = true;
 
             controller.abort();
+
         };
 
     }, []);
@@ -246,7 +301,9 @@ export default function HorariosPage() {
     useEffect(() => {
 
         if (
-            horarioIdEditar === null
+            !puedeAdministrar ||
+            horarioIdEditar ===
+            null
         ) {
             return;
         }
@@ -254,7 +311,8 @@ export default function HorariosPage() {
         const controller =
             new AbortController();
 
-        let ignore = false;
+        let ignore =
+            false;
 
         async function cargarDetalle() {
 
@@ -264,7 +322,9 @@ export default function HorariosPage() {
                     true
                 );
 
-                setErrorOperacion("");
+                setErrorOperacion(
+                    ""
+                );
 
                 const horario =
                     await horarioService
@@ -288,7 +348,9 @@ export default function HorariosPage() {
 
                 if (
                     !ignore &&
-                    !isAbortError(err)
+                    !isAbortError(
+                        err
+                    )
                 ) {
 
                     setErrorOperacion(
@@ -319,9 +381,13 @@ export default function HorariosPage() {
             ignore = true;
 
             controller.abort();
+
         };
 
-    }, [horarioIdEditar]);
+    }, [
+        horarioIdEditar,
+        puedeAdministrar
+    ]);
 
     useEffect(() => {
 
@@ -331,9 +397,10 @@ export default function HorariosPage() {
 
         const timer =
             window.setTimeout(
-                () => {
-                    setMensaje("");
-                },
+                () =>
+                    setMensaje(
+                        ""
+                    ),
                 2500
             );
 
@@ -342,11 +409,15 @@ export default function HorariosPage() {
                 timer
             );
 
-    }, [mensaje]);
+    }, [
+        mensaje
+    ]);
 
     useEffect(() => {
 
-        setPage(1);
+        setPage(
+            1
+        );
 
     }, [
         search,
@@ -366,7 +437,9 @@ export default function HorariosPage() {
                         ]
                     )
                 ),
-            [clases]
+            [
+                clases
+            ]
         );
 
     const instructoresPorId =
@@ -380,7 +453,9 @@ export default function HorariosPage() {
                         ]
                     )
                 ),
-            [instructores]
+            [
+                instructores
+            ]
         );
 
     const horariosFiltrados =
@@ -404,25 +479,39 @@ export default function HorariosPage() {
                             horario.instructorId
                         );
 
-                    const texto =
-                        [
-                            clase?.nombre ?? "",
-                            instructor?.nombre ?? "",
-                            horario.fecha,
-                            horario.horaInicio,
-                            horario.horaFin
-                        ]
-                            .join(" ")
-                            .toLowerCase();
+                    const texto = [
+
+                        clase?.nombre ??
+                        "",
+
+                        instructor?.nombre ??
+                        "",
+
+                        instructor?.especialidad ??
+                        "",
+
+                        horario.fecha,
+
+                        horario.horaInicio,
+
+                        horario.horaFin
+
+                    ]
+                        .join(" ")
+                        .toLowerCase();
 
                     const coincideTexto =
                         !term ||
-                        texto.includes(term);
+                        texto.includes(
+                            term
+                        );
 
                     const coincideClase =
                         !filtroClase ||
                         horario.claseId ===
-                        Number(filtroClase);
+                        Number(
+                            filtroClase
+                        );
 
                     const coincideInstructor =
                         !filtroInstructor ||
@@ -460,8 +549,10 @@ export default function HorariosPage() {
     useEffect(() => {
 
         if (
-            page > totalPages
+            page >
+            totalPages
         ) {
+
             setPage(
                 totalPages
             );
@@ -479,10 +570,11 @@ export default function HorariosPage() {
                 (page - 1) *
                 pageSize;
 
-            return horariosFiltrados.slice(
-                inicio,
-                inicio + pageSize
-            );
+            return horariosFiltrados
+                .slice(
+                    inicio,
+                    inicio + pageSize
+                );
 
         }, [
             horariosFiltrados,
@@ -501,16 +593,35 @@ export default function HorariosPage() {
 
     function nuevoHorario() {
 
-        setHorarioIdEditar(null);
-        setHorarioEditar(null);
+        if (
+            !puedeAdministrar
+        ) {
+            return;
+        }
+
+        setHorarioIdEditar(
+            null
+        );
+
+        setHorarioEditar(
+            null
+        );
 
         setMostrarFormulario(
             true
         );
 
-        setErrorOperacion("");
-        setErrorHorarios("");
-        setMensaje("");
+        setErrorOperacion(
+            ""
+        );
+
+        setErrorHorarios(
+            ""
+        );
+
+        setMensaje(
+            ""
+        );
     }
 
     function editarHorario(
@@ -518,32 +629,59 @@ export default function HorariosPage() {
     ) {
 
         if (
+            !puedeAdministrar ||
             cargandoDetalle ||
             guardando
         ) {
             return;
         }
 
-        setErrorOperacion("");
-        setMensaje("");
+        setErrorOperacion(
+            ""
+        );
 
-        setHorarioIdEditar(id);
+        setMensaje(
+            ""
+        );
+
+        setHorarioIdEditar(
+            id
+        );
     }
 
     async function guardarHorario(
-        datos: HorarioRequest
+        datos:
+        HorarioRequest
     ) {
 
-        if (guardando) {
+        if (
+            !puedeAdministrar
+        ) {
+
+            throw new Error(
+                "Solo ADMINISTRADOR puede crear o editar horarios."
+            );
+        }
+
+        if (
+            guardando
+        ) {
             return;
         }
 
-        setGuardando(true);
-        setErrorOperacion("");
+        setGuardando(
+            true
+        );
+
+        setErrorOperacion(
+            ""
+        );
 
         try {
 
-            if (horarioEditar) {
+            if (
+                horarioEditar
+            ) {
 
                 const actualizado =
                     await horarioService
@@ -571,7 +709,9 @@ export default function HorariosPage() {
 
                 const creado =
                     await horarioService
-                        .crear(datos);
+                        .crear(
+                            datos
+                        );
 
                 setHorarios(
                     (anteriores) => [
@@ -609,19 +749,27 @@ export default function HorariosPage() {
 
         } finally {
 
-            setGuardando(false);
-
+            setGuardando(
+                false
+            );
         }
     }
 
     function cancelarFormulario() {
 
-        if (guardando) {
+        if (
+            guardando
+        ) {
             return;
         }
 
-        setHorarioIdEditar(null);
-        setHorarioEditar(null);
+        setHorarioIdEditar(
+            null
+        );
+
+        setHorarioEditar(
+            null
+        );
 
         setMostrarFormulario(
             false
@@ -634,14 +782,16 @@ export default function HorariosPage() {
             <header className="horarios-header">
 
                 <div>
+
                     <h1>
                         Gestión de Horarios
                     </h1>
 
                     <p>
-                        Búsqueda, filtros,
-                        relaciones y paginación.
+                        Programa clases y consulta
+                        el calendario de los instructores.
                     </p>
+
                 </div>
 
                 <div className="module-toolbar__actions">
@@ -654,63 +804,130 @@ export default function HorariosPage() {
                             guardando ||
                             cargandoDetalle
                         }
-                        onClick={reload}
+                        onClick={
+                            reload
+                        }
                     >
                         Actualizar horarios
                     </Button>
 
-                    <Button
-                        type="button"
-                        disabled={
-                            cargando ||
-                            guardando ||
-                            cargandoDetalle
-                        }
-                        onClick={
-                            nuevoHorario
-                        }
-                    >
-                        + Nuevo horario
-                    </Button>
+                    {puedeAdministrar && (
+
+                        <Button
+                            type="button"
+                            disabled={
+                                cargando ||
+                                guardando ||
+                                cargandoDetalle
+                            }
+                            onClick={
+                                nuevoHorario
+                            }
+                        >
+                            + Nuevo horario
+                        </Button>
+
+                    )}
 
                 </div>
+
             </header>
 
             {mensaje && (
+
                 <div
                     className="horarios-success"
                     role="status"
                 >
                     {mensaje}
                 </div>
+
             )}
 
             {error && (
+
                 <div
                     className="horarios-error"
                     role="alert"
                 >
                     {error}
                 </div>
+
             )}
 
-            {mostrarFormulario && (
-                <HorarioForm
-                    clases={clases}
-                    instructores={
-                        instructores
+            {
+                cargandoDetalle &&
+                puedeAdministrar && (
+
+                    <p>
+                        Cargando detalle del horario...
+                    </p>
+
+                )
+            }
+
+            {
+                puedeAdministrar &&
+                mostrarFormulario && (
+
+                    <HorarioForm
+                        clases={
+                            clases
+                        }
+                        instructores={
+                            instructores
+                        }
+                        horarioEditar={
+                            horarioEditar
+                        }
+                        onGuardar={
+                            guardarHorario
+                        }
+                        onCancelar={
+                            cancelarFormulario
+                        }
+                    />
+
+                )
+            }
+
+            <div className="horarios-view-switch">
+
+                <Button
+                    type="button"
+                    variant={
+                        vista ===
+                        "LISTA"
+                            ? "primary"
+                            : "secondary"
                     }
-                    horarioEditar={
-                        horarioEditar
+                    onClick={() =>
+                        setVista(
+                            "LISTA"
+                        )
                     }
-                    onGuardar={
-                        guardarHorario
+                >
+                    Lista
+                </Button>
+
+                <Button
+                    type="button"
+                    variant={
+                        vista ===
+                        "AGENDA"
+                            ? "primary"
+                            : "secondary"
                     }
-                    onCancelar={
-                        cancelarFormulario
+                    onClick={() =>
+                        setVista(
+                            "AGENDA"
+                        )
                     }
-                />
-            )}
+                >
+                    Calendario de instructores
+                </Button>
+
+            </div>
 
             <section className="filter-panel">
 
@@ -718,9 +935,11 @@ export default function HorariosPage() {
 
                     <SearchInput
                         label="Buscar horario"
-                        value={search}
+                        value={
+                            search
+                        }
                         placeholder={
-                            "Clase, instructor o fecha"
+                            "Clase, instructor, especialidad o fecha"
                         }
                         onChange={
                             setSearch
@@ -738,10 +957,13 @@ export default function HorariosPage() {
                                 label:
                                     "Todas las clases"
                             },
+
                             ...clases.map(
                                 (clase) => ({
                                     value:
-                                        String(clase.id),
+                                        String(
+                                            clase.id
+                                        ),
 
                                     label:
                                     clase.nombre
@@ -764,6 +986,7 @@ export default function HorariosPage() {
                                 label:
                                     "Todos los instructores"
                             },
+
                             ...instructores.map(
                                 (instructor) => ({
                                     value:
@@ -781,41 +1004,57 @@ export default function HorariosPage() {
                         }
                     />
 
-                    <SelectFilter
-                        label="Registros por página"
-                        value={
-                            String(pageSize)
-                        }
-                        options={[
-                            {
-                                value: "5",
-                                label: "5"
-                            },
-                            {
-                                value: "10",
-                                label: "10"
-                            },
-                            {
-                                value: "20",
-                                label: "20"
-                            }
-                        ]}
-                        onChange={(value) =>
-                            setPageSize(
-                                Number(value)
-                            )
-                        }
-                    />
+                    {
+                        vista ===
+                        "LISTA" && (
+
+                            <SelectFilter
+                                label="Registros por página"
+                                value={
+                                    String(
+                                        pageSize
+                                    )
+                                }
+                                options={[
+                                    {
+                                        value: "5",
+                                        label: "5"
+                                    },
+                                    {
+                                        value: "10",
+                                        label: "10"
+                                    },
+                                    {
+                                        value: "20",
+                                        label: "20"
+                                    }
+                                ]}
+                                onChange={
+                                    (value) =>
+                                        setPageSize(
+                                            Number(
+                                                value
+                                            )
+                                        )
+                                }
+                            />
+
+                        )
+                    }
 
                 </div>
 
             </section>
 
             <p className="results-summary">
-                Mostrando{" "}
-                {horariosVisibles.length} de{" "}
-                {horariosFiltrados.length}
-                {" "}resultado(s).
+
+                {
+                    vista ===
+                    "LISTA"
+                        ? `Mostrando ${horariosVisibles.length} de ${horariosFiltrados.length} resultado(s).`
+                        : `Mostrando ${horariosFiltrados.length} horario(s) en el calendario.`
+                }
+
             </p>
 
             {cargando ? (
@@ -824,7 +1063,8 @@ export default function HorariosPage() {
                     Cargando información...
                 </p>
 
-            ) : horariosFiltrados.length === 0 ? (
+            ) : horariosFiltrados.length ===
+            0 ? (
 
                 <EmptyState
                     title="No existen horarios"
@@ -833,16 +1073,23 @@ export default function HorariosPage() {
                     }
                 />
 
-            ) : (
+            ) : vista ===
+            "LISTA" ? (
 
                 <>
+
                     <HorarioTable
                         horarios={
                             horariosVisibles
                         }
-                        clases={clases}
+                        clases={
+                            clases
+                        }
                         instructores={
                             instructores
+                        }
+                        puedeEditar={
+                            puedeAdministrar
                         }
                         onEditar={
                             editarHorario
@@ -854,7 +1101,9 @@ export default function HorariosPage() {
                     />
 
                     <Pagination
-                        page={page}
+                        page={
+                            page
+                        }
                         totalPages={
                             totalPages
                         }
@@ -862,9 +1111,44 @@ export default function HorariosPage() {
                             setPage
                         }
                     />
+
                 </>
 
+            ) : (
+
+                <InstructorCalendar
+                    horarios={
+                        horariosFiltrados
+                    }
+                    clases={
+                        clases
+                    }
+                    instructores={
+                        instructores
+                    }
+                    puedeEditar={
+                        puedeAdministrar
+                    }
+                    cargandoDetalle={
+                        cargandoDetalle ||
+                        guardando
+                    }
+                    onEditar={
+                        editarHorario
+                    }
+                />
+
             )}
+
+            <p className="horarios-note">
+
+                {
+                    puedeAdministrar
+                        ? "Puedes consultar, crear y editar horarios desde la lista o el calendario."
+                        : "Tu rol tiene acceso de consulta. Crear o editar horarios requiere ADMINISTRADOR."
+                }
+
+            </p>
 
         </section>
     );

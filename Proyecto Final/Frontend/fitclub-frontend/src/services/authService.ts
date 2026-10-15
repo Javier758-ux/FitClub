@@ -1,19 +1,24 @@
-import { apiClient } from "./apiClient";
+import {
+    apiClient
+} from "./apiClient";
 
-// Roles definidos en el backend de FitClub
+import {
+    eliminarToken,
+    guardarToken,
+    obtenerToken
+} from "../auth/authStorage";
+
 export type RolUsuario =
     | "ADMINISTRADOR"
     | "RECEPCION"
     | "INSTRUCTOR"
     | "SOCIO";
 
-// Datos enviados para iniciar sesión
 export interface LoginRequest {
     email: string;
     password: string;
 }
 
-// Respuesta del backend al iniciar sesión
 export interface LoginResponse {
     token: string;
     tipo: string;
@@ -23,7 +28,6 @@ export interface LoginResponse {
     rol: RolUsuario;
 }
 
-// Información del usuario autenticado
 export interface UsuarioActual {
     id: number;
     nombre: string;
@@ -33,49 +37,62 @@ export interface UsuarioActual {
     instructorId: number | null;
 }
 
-const TOKEN_KEY = "fitclub_token";
-
 export const authService = {
 
-    // Iniciar sesión
     async iniciarSesion(
         datos: LoginRequest
     ): Promise<LoginResponse> {
 
-        const respuesta = await apiClient.post<LoginResponse>(
-            "/auth/login",
-            datos
-        );
+        const respuesta =
+            await apiClient
+                .post<LoginResponse>(
+                    "/auth/login",
+                    datos
+                );
 
         if (!respuesta.token) {
+
             throw new Error(
                 "El backend no devolvió un token de autenticación"
             );
         }
 
-        sessionStorage.setItem(TOKEN_KEY, respuesta.token);
+        guardarToken(
+            respuesta.token
+        );
 
         return respuesta;
     },
 
-    // Consultar usuario autenticado
-    async obtenerUsuarioActual(): Promise<UsuarioActual> {
-        return apiClient.get<UsuarioActual>("/auth/me");
+    obtenerUsuarioActual(
+        signal?: AbortSignal
+    ): Promise<UsuarioActual> {
+
+        return apiClient
+            .get<UsuarioActual>(
+                "/auth/me",
+                signal
+            );
     },
 
-    // Obtener token almacenado
-    obtenerToken(): string | null {
-        return sessionStorage.getItem(TOKEN_KEY);
+    obtenerToken():
+        string | null {
+
+        return obtenerToken();
     },
 
-    // Comprobar si existe un token
-    haySesion(): boolean {
-        return Boolean(sessionStorage.getItem(TOKEN_KEY));
+    haySesion():
+        boolean {
+
+        return Boolean(
+            obtenerToken()
+        );
     },
 
-    // Cerrar sesión
-    cerrarSesion(): void {
-        sessionStorage.removeItem(TOKEN_KEY);
+    cerrarSesion():
+        void {
+
+        eliminarToken();
     }
 
 };

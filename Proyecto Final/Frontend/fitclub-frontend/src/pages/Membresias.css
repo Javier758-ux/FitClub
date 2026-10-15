@@ -1,0 +1,45 @@
+.memberships-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(180px, 1fr)
+        );
+
+    gap: 16px;
+
+    margin: 18px 0;
+}
+
+.memberships-view-switch {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-bottom: 16px;
+}
+
+.membership-history-change {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.memberships-note {
+    padding: 12px 14px;
+
+    border-radius:
+            var(--radius-md);
+
+    color:
+            var(--color-muted);
+
+    background:
+            #f8fafc;
+
+    font-size: 13px;
+}

@@ -4,13 +4,9 @@ import {
     useState
 } from "react";
 
-import type {
-    ClaseApi
-} from "../models/ApiModels";
-
-import type {
-    ClaseRequest
-} from "../services/claseService";
+import {
+    useAuth
+} from "../auth/AuthContext";
 
 import ClaseForm
     from "../components/ClaseForm";
@@ -18,6 +14,14 @@ import ClaseForm
 import {
     Button
 } from "../components/ui/Button";
+
+import {
+    EmptyState
+} from "../components/ui/EmptyState";
+
+import {
+    Pagination
+} from "../components/ui/Pagination";
 
 import {
     SearchInput
@@ -28,25 +32,34 @@ import {
 } from "../components/ui/SelectFilter";
 
 import {
-    Pagination
-} from "../components/ui/Pagination";
+    useClases
+} from "../hooks/useClases";
 
-import {
-    EmptyState
-} from "../components/ui/EmptyState";
+import type {
+    ClaseApi
+} from "../models/ApiModels";
 
 import {
     claseService
 } from "../services/claseService";
 
-import {
-    useClases
-} from "../hooks/useClases";
+import type {
+    ClaseRequest
+} from "../services/claseService";
 
-import "./FitclubTables.css";
 import "./Catalogos.css";
+import "./FitclubTables.css";
 
 export default function ClasesPage() {
+
+    const {
+        tieneRol
+    } = useAuth();
+
+    const puedeAdministrar =
+        tieneRol(
+            "ADMINISTRADOR"
+        );
 
     const {
         data: clases,
@@ -66,9 +79,9 @@ export default function ClasesPage() {
         claseEditar,
         setClaseEditar
     ] =
-        useState<ClaseApi | null>(
-            null
-        );
+        useState<
+            ClaseApi | null
+        >(null);
 
     const [
         guardando,
@@ -96,7 +109,9 @@ export default function ClasesPage() {
     ] = useState(10);
 
     useEffect(() => {
+
         setPage(1);
+
     }, [
         search,
         pageSize
@@ -145,7 +160,9 @@ export default function ClasesPage() {
                     ]
                         .join(" ")
                         .toLowerCase()
-                        .includes(term)
+                        .includes(
+                            term
+                        )
             );
 
         }, [
@@ -165,8 +182,10 @@ export default function ClasesPage() {
     useEffect(() => {
 
         if (
-            page > totalPages
+            page >
+            totalPages
         ) {
+
             setPage(
                 totalPages
             );
@@ -198,6 +217,10 @@ export default function ClasesPage() {
 
     function nuevaClase() {
 
+        if (!puedeAdministrar) {
+            return;
+        }
+
         setClaseEditar(
             null
         );
@@ -213,6 +236,10 @@ export default function ClasesPage() {
     function editarClase(
         clase: ClaseApi
     ) {
+
+        if (!puedeAdministrar) {
+            return;
+        }
 
         setClaseEditar(
             clase
@@ -244,6 +271,13 @@ export default function ClasesPage() {
     async function guardarClase(
         datos: ClaseRequest
     ) {
+
+        if (!puedeAdministrar) {
+
+            throw new Error(
+                "Solo ADMINISTRADOR puede crear o editar clases."
+            );
+        }
 
         if (guardando) {
             return;
@@ -282,7 +316,9 @@ export default function ClasesPage() {
 
                 const creada =
                     await claseService
-                        .crear(datos);
+                        .crear(
+                            datos
+                        );
 
                 setClases(
                     (actuales) => [
@@ -296,7 +332,9 @@ export default function ClasesPage() {
                 );
             }
 
-            setClaseEditar(null);
+            setClaseEditar(
+                null
+            );
 
             setMostrarFormulario(
                 false
@@ -315,7 +353,6 @@ export default function ClasesPage() {
         } finally {
 
             setGuardando(false);
-
         }
     }
 
@@ -331,9 +368,8 @@ export default function ClasesPage() {
                     </h1>
 
                     <p>
-                        Consulta, registro y edición
-                        de las clases disponibles
-                        en FitClub.
+                        Consulta de las clases
+                        disponibles en FitClub.
                     </p>
 
                 </div>
@@ -347,63 +383,78 @@ export default function ClasesPage() {
                             cargando ||
                             guardando
                         }
-                        onClick={reload}
+                        onClick={
+                            reload
+                        }
                     >
                         Actualizar lista
                     </Button>
 
-                    <Button
-                        type="button"
-                        disabled={
-                            cargando ||
-                            guardando
-                        }
-                        onClick={
-                            nuevaClase
-                        }
-                    >
-                        + Nueva clase
-                    </Button>
+                    {puedeAdministrar && (
+
+                        <Button
+                            type="button"
+                            disabled={
+                                cargando ||
+                                guardando
+                            }
+                            onClick={
+                                nuevaClase
+                            }
+                        >
+                            + Nueva clase
+                        </Button>
+
+                    )}
 
                 </div>
 
             </header>
 
             {mensaje && (
+
                 <div
                     className="catalog-success"
                     role="status"
                 >
                     {mensaje}
                 </div>
+
             )}
 
             {error && (
+
                 <div
                     className="catalog-error"
                     role="alert"
                 >
                     {error}
                 </div>
+
             )}
 
-            {mostrarFormulario && (
-                <ClaseForm
-                    key={
-                        claseEditar?.id ??
-                        "nueva"
-                    }
-                    claseEditar={
-                        claseEditar
-                    }
-                    onGuardar={
-                        guardarClase
-                    }
-                    onCancelar={
-                        cancelarFormulario
-                    }
-                />
-            )}
+            {
+                puedeAdministrar &&
+                mostrarFormulario && (
+
+                    <ClaseForm
+                        key={
+                            claseEditar?.id ??
+                            "nueva"
+                        }
+                        claseEditar={
+                            claseEditar
+                        }
+                        onGuardar={
+                            guardarClase
+                        }
+                        onCancelar={
+                            cancelarFormulario
+                        }
+                    />
+
+                )
+            }
 
             <section className="filter-panel">
 
@@ -411,7 +462,9 @@ export default function ClasesPage() {
 
                     <SearchInput
                         label="Buscar clase"
-                        value={search}
+                        value={
+                            search
+                        }
                         placeholder={
                             "Nombre, descripción o cupo"
                         }
@@ -423,7 +476,9 @@ export default function ClasesPage() {
                     <SelectFilter
                         label="Registros por página"
                         value={
-                            String(pageSize)
+                            String(
+                                pageSize
+                            )
                         }
                         options={[
                             {
@@ -442,7 +497,9 @@ export default function ClasesPage() {
                         onChange={
                             (value) =>
                                 setPageSize(
-                                    Number(value)
+                                    Number(
+                                        value
+                                    )
                                 )
                         }
                     />
@@ -452,11 +509,17 @@ export default function ClasesPage() {
             </section>
 
             <p className="results-summary">
+
                 Mostrando{" "}
-                {clasesVisibles.length}
+                {
+                    clasesVisibles.length
+                }
                 {" "}de{" "}
-                {clasesFiltradas.length}
+                {
+                    clasesFiltradas.length
+                }
                 {" "}resultado(s).
+
             </p>
 
             {cargando ? (
@@ -470,7 +533,9 @@ export default function ClasesPage() {
                 <EmptyState
                     title="No se encontraron clases"
                     description={
-                        "Prueba con otra búsqueda o registra una nueva clase."
+                        puedeAdministrar
+                            ? "Prueba con otra búsqueda o registra una nueva clase."
+                            : "Prueba con otro término de búsqueda."
                     }
                 />
 
@@ -483,13 +548,20 @@ export default function ClasesPage() {
                         <table className="fitclub-table">
 
                             <thead>
+
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Descripción</th>
                                 <th>Cupo máximo</th>
-                                <th>Acciones</th>
+
+                                {puedeAdministrar && (
+                                    <th>
+                                        Acciones
+                                    </th>
+                                )}
                             </tr>
+
                             </thead>
 
                             <tbody>
@@ -497,7 +569,11 @@ export default function ClasesPage() {
                             {clasesVisibles.map(
                                 (clase) => (
 
-                                    <tr key={clase.id}>
+                                    <tr
+                                        key={
+                                            clase.id
+                                        }
+                                    >
 
                                         <td>
                                             {clase.id}
@@ -508,33 +584,43 @@ export default function ClasesPage() {
                                         </td>
 
                                         <td>
-                                            {clase.descripcion || "—"}
+                                            {
+                                                clase.descripcion ||
+                                                "—"
+                                            }
                                         </td>
 
                                         <td>
-                                            {clase.cupoMaximo}
+                                            {
+                                                clase.cupoMaximo
+                                            }
                                         </td>
 
-                                        <td>
+                                        {puedeAdministrar && (
 
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                disabled={
-                                                    guardando
-                                                }
-                                                onClick={() =>
-                                                    editarClase(
-                                                        clase
-                                                    )
-                                                }
-                                            >
-                                                Editar
-                                            </Button>
+                                            <td>
 
-                                        </td>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    disabled={
+                                                        guardando
+                                                    }
+                                                    onClick={() =>
+                                                        editarClase(
+                                                            clase
+                                                        )
+                                                    }
+                                                >
+                                                    Editar
+                                                </Button>
+
+                                            </td>
+
+                                        )}
 
                                     </tr>
+
                                 )
                             )}
 
@@ -545,7 +631,9 @@ export default function ClasesPage() {
                     </div>
 
                     <Pagination
-                        page={page}
+                        page={
+                            page
+                        }
                         totalPages={
                             totalPages
                         }
@@ -559,10 +647,11 @@ export default function ClasesPage() {
             )}
 
             <p className="catalog-note">
-                Crear o editar clases requiere
-                rol ADMINISTRADOR. Los demás
-                roles autenticados pueden
-                consultarlas.
+
+                {puedeAdministrar
+                    ? "Tienes permisos para consultar, crear y editar clases."
+                    : "Tu rol tiene acceso de consulta. Crear y editar clases requiere ADMINISTRADOR."}
+
             </p>
 
         </section>

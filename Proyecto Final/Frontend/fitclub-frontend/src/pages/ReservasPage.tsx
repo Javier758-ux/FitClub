@@ -35,12 +35,8 @@ import {
 } from "../components/ui/SelectFilter";
 
 import {
-    authService
-} from "../services/authService";
-
-import type {
-    UsuarioActual
-} from "../services/authService";
+    useAuth
+} from "../auth/AuthContext";
 
 import {
     claseService
@@ -71,13 +67,9 @@ import "./Reservas.css";
 
 export default function ReservasPage() {
 
-    const [
-        usuario,
-        setUsuario
-    ] =
-        useState<UsuarioActual | null>(
-            null
-        );
+    const {
+        usuario
+    } = useAuth();
 
     const [
         reservas,
@@ -177,7 +169,15 @@ export default function ReservasPage() {
 
     useEffect(() => {
 
-        let activo = true;
+        if (!usuario) {
+            return;
+        }
+
+        const rol =
+            usuario.rol;
+
+        let activo =
+            true;
 
         const controller =
             new AbortController();
@@ -188,10 +188,6 @@ export default function ReservasPage() {
 
                 setCargando(true);
                 setError("");
-
-                const usuarioActual =
-                    await authService
-                        .obtenerUsuarioActual();
 
                 const [
                     paginaClases,
@@ -215,10 +211,6 @@ export default function ReservasPage() {
                     return;
                 }
 
-                setUsuario(
-                    usuarioActual
-                );
-
                 setClases(
                     paginaClases.contenido
                 );
@@ -228,7 +220,7 @@ export default function ReservasPage() {
                 );
 
                 if (
-                    usuarioActual.rol ===
+                    rol ===
                     "SOCIO"
                 ) {
 
@@ -239,6 +231,7 @@ export default function ReservasPage() {
                             );
 
                     if (activo) {
+
                         setReservas(
                             lista
                         );
@@ -248,9 +241,9 @@ export default function ReservasPage() {
                 }
 
                 if (
-                    usuarioActual.rol ===
+                    rol ===
                     "ADMINISTRADOR" ||
-                    usuarioActual.rol ===
+                    rol ===
                     "RECEPCION"
                 ) {
 
@@ -298,6 +291,7 @@ export default function ReservasPage() {
             } finally {
 
                 if (activo) {
+
                     setCargando(
                         false
                     );
@@ -314,7 +308,7 @@ export default function ReservasPage() {
             controller.abort();
         };
 
-    }, []);
+    }, [usuario]);
 
     useEffect(() => {
 
@@ -480,6 +474,7 @@ export default function ReservasPage() {
             page >
             totalPages
         ) {
+
             setPage(
                 totalPages
             );
@@ -635,7 +630,6 @@ export default function ReservasPage() {
             setProcesandoId(
                 null
             );
-
         }
     }
 
@@ -694,7 +688,6 @@ export default function ReservasPage() {
             setRecargando(
                 false
             );
-
         }
     }
 
@@ -732,7 +725,7 @@ export default function ReservasPage() {
                         "La lista de participantes se gestiona desde Asistencias"
                     }
                     description={
-                        "En el siguiente módulo podrás seleccionar uno de tus horarios, ver sus reservas activas y registrar asistencia."
+                        "En el módulo de Asistencias puedes seleccionar uno de tus horarios, ver las reservas activas y registrar asistencia."
                     }
                 />
 
@@ -962,13 +955,10 @@ export default function ReservasPage() {
 
             </p>
 
-            {reservasFiltradas
-                .length === 0 ? (
+            {reservasFiltradas.length === 0 ? (
 
                 <EmptyState
-                    title={
-                        "No hay reservas"
-                    }
+                    title="No hay reservas"
                     description={
                         esSocio
                             ? "Todavía no tienes reservas que coincidan con los filtros."
@@ -1025,17 +1015,13 @@ export default function ReservasPage() {
                     pendingCancel !==
                     null
                 }
-                title={
-                    "Cancelar reserva"
-                }
+                title="Cancelar reserva"
                 message={
                     pendingCancel
                         ? `¿Confirmas cancelar la reserva #${pendingCancel.id}? El backend determinará si la cancelación es tardía.`
                         : ""
                 }
-                confirmLabel={
-                    "Cancelar reserva"
-                }
+                confirmLabel="Cancelar reserva"
                 confirming={
                     procesandoId !==
                     null

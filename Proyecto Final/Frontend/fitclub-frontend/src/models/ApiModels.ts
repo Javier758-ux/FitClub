@@ -116,3 +116,28 @@ export interface NotificacionRequest {
     titulo: string;
     mensaje: string;
 }
+
+export interface HistorialMembresiaApi {
+    id: number;
+
+    membresiaId: number;
+
+    estadoAnterior:
+        | "ACTIVA"
+        | "VENCIDA"
+        | "SUSPENDIDA"
+        | "CANCELADA"
+        | null;
+
+    estadoNuevo:
+        | "ACTIVA"
+        | "VENCIDA"
+        | "SUSPENDIDA"
+        | "CANCELADA";
+
+    fechaCambio: string;
+
+    motivo: string;
+
+    usuarioEmail: string;
+}

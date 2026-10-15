@@ -4,13 +4,9 @@ import {
     useState
 } from "react";
 
-import type {
-    InstructorApi
-} from "../models/ApiModels";
-
-import type {
-    InstructorRequest
-} from "../services/instructorService";
+import {
+    useAuth
+} from "../auth/AuthContext";
 
 import InstructorForm
     from "../components/InstructorForm";
@@ -18,6 +14,14 @@ import InstructorForm
 import {
     Button
 } from "../components/ui/Button";
+
+import {
+    EmptyState
+} from "../components/ui/EmptyState";
+
+import {
+    Pagination
+} from "../components/ui/Pagination";
 
 import {
     SearchInput
@@ -28,25 +32,34 @@ import {
 } from "../components/ui/SelectFilter";
 
 import {
-    Pagination
-} from "../components/ui/Pagination";
+    useInstructores
+} from "../hooks/useInstructores";
 
-import {
-    EmptyState
-} from "../components/ui/EmptyState";
+import type {
+    InstructorApi
+} from "../models/ApiModels";
 
 import {
     instructorService
 } from "../services/instructorService";
 
-import {
-    useInstructores
-} from "../hooks/useInstructores";
+import type {
+    InstructorRequest
+} from "../services/instructorService";
 
-import "./FitclubTables.css";
 import "./Catalogos.css";
+import "./FitclubTables.css";
 
 export default function InstructoresPage() {
+
+    const {
+        tieneRol
+    } = useAuth();
+
+    const puedeAdministrar =
+        tieneRol(
+            "ADMINISTRADOR"
+        );
 
     const {
         data: instructores,
@@ -66,9 +79,9 @@ export default function InstructoresPage() {
         instructorEditar,
         setInstructorEditar
     ] =
-        useState<InstructorApi | null>(
-            null
-        );
+        useState<
+            InstructorApi | null
+        >(null);
 
     const [
         guardando,
@@ -96,7 +109,9 @@ export default function InstructoresPage() {
     ] = useState(10);
 
     useEffect(() => {
+
         setPage(1);
+
     }, [
         search,
         pageSize
@@ -144,7 +159,9 @@ export default function InstructoresPage() {
                     ]
                         .join(" ")
                         .toLowerCase()
-                        .includes(term)
+                        .includes(
+                            term
+                        )
             );
 
         }, [
@@ -164,8 +181,10 @@ export default function InstructoresPage() {
     useEffect(() => {
 
         if (
-            page > totalPages
+            page >
+            totalPages
         ) {
+
             setPage(
                 totalPages
             );
@@ -197,6 +216,10 @@ export default function InstructoresPage() {
 
     function nuevoInstructor() {
 
+        if (!puedeAdministrar) {
+            return;
+        }
+
         setInstructorEditar(
             null
         );
@@ -210,8 +233,13 @@ export default function InstructoresPage() {
     }
 
     function editarInstructor(
-        instructor: InstructorApi
+        instructor:
+        InstructorApi
     ) {
+
+        if (!puedeAdministrar) {
+            return;
+        }
 
         setInstructorEditar(
             instructor
@@ -241,8 +269,16 @@ export default function InstructoresPage() {
     }
 
     async function guardarInstructor(
-        datos: InstructorRequest
+        datos:
+        InstructorRequest
     ) {
+
+        if (!puedeAdministrar) {
+
+            throw new Error(
+                "Solo ADMINISTRADOR puede crear o editar instructores."
+            );
+        }
 
         if (guardando) {
             return;
@@ -253,7 +289,9 @@ export default function InstructoresPage() {
 
         try {
 
-            if (instructorEditar) {
+            if (
+                instructorEditar
+            ) {
 
                 const actualizado =
                     await instructorService
@@ -281,7 +319,9 @@ export default function InstructoresPage() {
 
                 const creado =
                     await instructorService
-                        .crear(datos);
+                        .crear(
+                            datos
+                        );
 
                 setInstructores(
                     (actuales) => [
@@ -316,7 +356,6 @@ export default function InstructoresPage() {
         } finally {
 
             setGuardando(false);
-
         }
     }
 
@@ -332,8 +371,8 @@ export default function InstructoresPage() {
                     </h1>
 
                     <p>
-                        Consulta, registro y edición
-                        del equipo de instructores.
+                        Consulta del equipo de
+                        instructores de FitClub.
                     </p>
 
                 </div>
@@ -347,63 +386,78 @@ export default function InstructoresPage() {
                             cargando ||
                             guardando
                         }
-                        onClick={reload}
+                        onClick={
+                            reload
+                        }
                     >
                         Actualizar lista
                     </Button>
 
-                    <Button
-                        type="button"
-                        disabled={
-                            cargando ||
-                            guardando
-                        }
-                        onClick={
-                            nuevoInstructor
-                        }
-                    >
-                        + Nuevo instructor
-                    </Button>
+                    {puedeAdministrar && (
+
+                        <Button
+                            type="button"
+                            disabled={
+                                cargando ||
+                                guardando
+                            }
+                            onClick={
+                                nuevoInstructor
+                            }
+                        >
+                            + Nuevo instructor
+                        </Button>
+
+                    )}
 
                 </div>
 
             </header>
 
             {mensaje && (
+
                 <div
                     className="catalog-success"
                     role="status"
                 >
                     {mensaje}
                 </div>
+
             )}
 
             {error && (
+
                 <div
                     className="catalog-error"
                     role="alert"
                 >
                     {error}
                 </div>
+
             )}
 
-            {mostrarFormulario && (
-                <InstructorForm
-                    key={
-                        instructorEditar?.id ??
-                        "nuevo"
-                    }
-                    instructorEditar={
-                        instructorEditar
-                    }
-                    onGuardar={
-                        guardarInstructor
-                    }
-                    onCancelar={
-                        cancelarFormulario
-                    }
-                />
-            )}
+            {
+                puedeAdministrar &&
+                mostrarFormulario && (
+
+                    <InstructorForm
+                        key={
+                            instructorEditar?.id ??
+                            "nuevo"
+                        }
+                        instructorEditar={
+                            instructorEditar
+                        }
+                        onGuardar={
+                            guardarInstructor
+                        }
+                        onCancelar={
+                            cancelarFormulario
+                        }
+                    />
+
+                )
+            }
 
             <section className="filter-panel">
 
@@ -411,7 +465,9 @@ export default function InstructoresPage() {
 
                     <SearchInput
                         label="Buscar instructor"
-                        value={search}
+                        value={
+                            search
+                        }
                         placeholder={
                             "Nombre, correo, teléfono o especialidad"
                         }
@@ -423,7 +479,9 @@ export default function InstructoresPage() {
                     <SelectFilter
                         label="Registros por página"
                         value={
-                            String(pageSize)
+                            String(
+                                pageSize
+                            )
                         }
                         options={[
                             {
@@ -442,7 +500,9 @@ export default function InstructoresPage() {
                         onChange={
                             (value) =>
                                 setPageSize(
-                                    Number(value)
+                                    Number(
+                                        value
+                                    )
                                 )
                         }
                     />
@@ -452,11 +512,17 @@ export default function InstructoresPage() {
             </section>
 
             <p className="results-summary">
+
                 Mostrando{" "}
-                {instructoresVisibles.length}
+                {
+                    instructoresVisibles.length
+                }
                 {" "}de{" "}
-                {instructoresFiltrados.length}
+                {
+                    instructoresFiltrados.length
+                }
                 {" "}resultado(s).
+
             </p>
 
             {cargando ? (
@@ -470,7 +536,9 @@ export default function InstructoresPage() {
                 <EmptyState
                     title="No se encontraron instructores"
                     description={
-                        "Prueba con otra búsqueda o registra un nuevo instructor."
+                        puedeAdministrar
+                            ? "Prueba con otra búsqueda o registra un nuevo instructor."
+                            : "Prueba con otro término de búsqueda."
                     }
                 />
 
@@ -483,14 +551,21 @@ export default function InstructoresPage() {
                         <table className="fitclub-table">
 
                             <thead>
+
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Correo</th>
                                 <th>Teléfono</th>
                                 <th>Especialidad</th>
-                                <th>Acciones</th>
+
+                                {puedeAdministrar && (
+                                    <th>
+                                        Acciones
+                                    </th>
+                                )}
                             </tr>
+
                             </thead>
 
                             <tbody>
@@ -498,48 +573,67 @@ export default function InstructoresPage() {
                             {instructoresVisibles.map(
                                 (instructor) => (
 
-                                    <tr key={instructor.id}>
+                                    <tr
+                                        key={
+                                            instructor.id
+                                        }
+                                    >
 
                                         <td>
-                                            {instructor.id}
+                                            {
+                                                instructor.id
+                                            }
                                         </td>
 
                                         <td>
-                                            {instructor.nombre}
+                                            {
+                                                instructor.nombre
+                                            }
                                         </td>
 
                                         <td>
-                                            {instructor.email}
+                                            {
+                                                instructor.email
+                                            }
                                         </td>
 
                                         <td>
-                                            {instructor.telefono}
+                                            {
+                                                instructor.telefono
+                                            }
                                         </td>
 
                                         <td>
-                                            {instructor.especialidad}
+                                            {
+                                                instructor.especialidad
+                                            }
                                         </td>
 
-                                        <td>
+                                        {puedeAdministrar && (
 
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                disabled={
-                                                    guardando
-                                                }
-                                                onClick={() =>
-                                                    editarInstructor(
-                                                        instructor
-                                                    )
-                                                }
-                                            >
-                                                Editar
-                                            </Button>
+                                            <td>
 
-                                        </td>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    disabled={
+                                                        guardando
+                                                    }
+                                                    onClick={() =>
+                                                        editarInstructor(
+                                                            instructor
+                                                        )
+                                                    }
+                                                >
+                                                    Editar
+                                                </Button>
+
+                                            </td>
+
+                                        )}
 
                                     </tr>
+
                                 )
                             )}
 
@@ -550,7 +644,9 @@ export default function InstructoresPage() {
                     </div>
 
                     <Pagination
-                        page={page}
+                        page={
+                            page
+                        }
                         totalPages={
                             totalPages
                         }
@@ -564,9 +660,11 @@ export default function InstructoresPage() {
             )}
 
             <p className="catalog-note">
-                Crear o editar instructores requiere
-                rol ADMINISTRADOR. Los demás roles
-                autenticados pueden consultarlos.
+
+                {puedeAdministrar
+                    ? "Tienes permisos para consultar, crear y editar instructores."
+                    : "Tu rol tiene acceso de consulta. Crear y editar instructores requiere ADMINISTRADOR."}
+
             </p>
 
         </section>

@@ -21,27 +21,10 @@
     color: #64748b;
 }
 
-.horarios-header-actions,
-.horarios-actions {
+.horarios-view-switch {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-}
-
-.horarios-filters {
-    display: grid;
-    grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-    gap: 16px;
-
-    padding: 16px;
-
-    background: #ffffff;
-
-    border:
-            1px solid #e2e8f0;
-
-    border-radius: 10px;
 }
 
 .horarios-table-wrapper {
@@ -79,42 +62,8 @@
     color: #1e40af;
 }
 
-.horarios-table
-tbody
-tr:hover {
+.horarios-table tbody tr:hover {
     background: #f8fafc;
-}
-
-.horarios-btn-edit,
-.horarios-btn-delete {
-    padding: 8px 11px;
-
-    border: 0;
-
-    border-radius: 6px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-}
-
-.horarios-btn-edit {
-    background: #dbeafe;
-
-    color: #1d4ed8;
-}
-
-.horarios-btn-delete {
-    background: #fee2e2;
-
-    color: #991b1b;
-}
-
-.horarios-btn-delete:disabled,
-.horarios-btn-edit:disabled {
-    opacity: 0.5;
-
-    cursor: not-allowed;
 }
 
 .horarios-success,
@@ -142,10 +91,177 @@ tr:hover {
     font-size: 13px;
 }
 
+/*
+ * ============================
+ * CALENDARIO DE INSTRUCTORES
+ * ============================
+ */
+
+.instructor-calendar {
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+.instructor-calendar__day {
+    overflow: hidden;
+
+    border:
+            1px solid #e2e8f0;
+
+    border-radius: 12px;
+
+    background: #ffffff;
+}
+
+.instructor-calendar__day-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+            space-between;
+
+    gap: 16px;
+
+    padding: 16px 18px;
+
+    border-bottom:
+            1px solid #dbeafe;
+
+    background: #eff6ff;
+}
+
+.instructor-calendar__day-header h2 {
+    margin: 3px 0 0;
+
+    color: #1e3a8a;
+
+    font-size: 18px;
+
+    text-transform: capitalize;
+}
+
+.instructor-calendar__date-value {
+    color: #64748b;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.instructor-calendar__count {
+    flex-shrink: 0;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    background: #dbeafe;
+
+    color: #1d4ed8;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.instructor-calendar__events {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.instructor-calendar__event {
+    display: grid;
+
+    grid-template-columns:
+        130px
+        minmax(0, 1fr)
+        auto;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 16px 18px;
+
+    border-bottom:
+            1px solid #e2e8f0;
+}
+
+.instructor-calendar__event:last-child {
+    border-bottom: 0;
+}
+
+.instructor-calendar__event:hover {
+    background: #f8fafc;
+}
+
+.instructor-calendar__time {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    color: #1e40af;
+
+    white-space: nowrap;
+}
+
+.instructor-calendar__time span {
+    color: #94a3b8;
+
+    font-size: 12px;
+}
+
+.instructor-calendar__event-info h3 {
+    margin: 0 0 5px;
+
+    color: #0f172a;
+
+    font-size: 16px;
+}
+
+.instructor-calendar__event-info p {
+    margin: 0 0 4px;
+
+    color: #475569;
+
+    font-size: 14px;
+}
+
+.instructor-calendar__event-info > span {
+    display: inline-block;
+
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+.instructor-calendar__event-actions {
+    display: flex;
+
+    justify-content: flex-end;
+}
+
 @media (max-width: 720px) {
 
-    .horarios-filters {
-        grid-template-columns: 1fr;
+    .instructor-calendar__day-header {
+        align-items: flex-start;
+    }
+
+    .instructor-calendar__event {
+        grid-template-columns:
+            1fr;
+
+        gap: 9px;
+    }
+
+    .instructor-calendar__event-actions {
+        justify-content: flex-start;
     }
 
 }

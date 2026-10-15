@@ -1,69 +1,134 @@
-import { NavLink, Outlet } from "react-router-dom";
+import {
+    NavLink,
+    Outlet
+} from "react-router-dom";
+
+import {
+    useAuth
+} from "../auth/AuthContext";
+
+import {
+    MENU_ITEMS,
+    tienePermiso
+} from "../auth/permissions";
+
+import {
+    Button
+} from "../components/ui/Button";
+
 import "./MainLayout.css";
 
-const menuItems = [
-    { path: "/", label: "Dashboard" },
-    { path: "/socios", label: "Socios" },
-    { path: "/planes", label: "Planes" },
-    { path: "/membresias", label: "Membresías" },
-    { path: "/instructores", label: "Instructores" },
-    { path: "/clases", label: "Clases" },
-    { path: "/horarios", label: "Horarios" },
-    { path: "/reservas", label: "Reservas" },
-    { path: "/asistencias", label: "Asistencias" },
-    { path: "/notificaciones", label: "Notificaciones" },
-    { path: "/reportes", label: "Reportes" }
-];
+export default function MainLayout() {
 
-interface Props {
-    onLogout: () => void;
-}
+    const {
+        usuario,
+        cerrarSesion
+    } = useAuth();
 
-export default function MainLayout({ onLogout }: Props) {
+    if (!usuario) {
+        return null;
+    }
+
+    const menuVisible =
+        MENU_ITEMS.filter(
+            (item) =>
+                tienePermiso(
+                    usuario.rol,
+                    item.roles
+                )
+        );
+
     return (
         <div className="layout">
+
             <aside className="sidebar">
-                <h2>FitClub</h2>
+
+                <h2>
+                    FitClub
+                </h2>
+
+                <div className="sidebar-user">
+
+                    <strong>
+                        {usuario.nombre}
+                    </strong>
+
+                    <span>
+                        {usuario.rol}
+                    </span>
+
+                </div>
 
                 <nav>
-                    {menuItems.map((item) => (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            end={item.path === "/"}
-                            className={({ isActive }) =>
-                                isActive
-                                    ? "menu-link active"
-                                    : "menu-link"
-                            }
-                        >
-                            {item.label}
-                        </NavLink>
-                    ))}
+
+                    {menuVisible.map(
+                        (item) => (
+
+                            <NavLink
+                                key={
+                                    item.path
+                                }
+                                to={
+                                    item.path
+                                }
+                                end={
+                                    item.path ===
+                                    "/"
+                                }
+                                className={({
+                                                isActive
+                                            }) =>
+                                    isActive
+                                        ? "menu-link active"
+                                        : "menu-link"
+                                }
+                            >
+                                {
+                                    item.label
+                                }
+                            </NavLink>
+
+                        )
+                    )}
+
                 </nav>
+
             </aside>
 
             <div className="main-area">
-                <header className="topbar" style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center"
-                }}>
-                    <h3>Sistema de Gestión FitClub</h3>
 
-                    <button
+                <header className="topbar">
+
+                    <div>
+
+                        <h3>
+                            Sistema de Gestión FitClub
+                        </h3>
+
+                        <span className="topbar-session">
+                            {usuario.email}
+                        </span>
+
+                    </div>
+
+                    <Button
                         type="button"
-                        className="btn-secondary"
-                        onClick={onLogout}
+                        variant="secondary"
+                        onClick={
+                            cerrarSesion
+                        }
                     >
                         Cerrar sesión
-                    </button>
+                    </Button>
+
                 </header>
 
                 <main className="content">
                     <Outlet />
                 </main>
+
             </div>
+
         </div>
     );
 }

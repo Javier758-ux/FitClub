@@ -21,12 +21,8 @@ import {
 } from "../components/ui/SelectFilter";
 
 import {
-    authService
-} from "../services/authService";
-
-import type {
-    UsuarioActual
-} from "../services/authService";
+    useAuth
+} from "../auth/AuthContext";
 
 import {
     claseService
@@ -68,13 +64,9 @@ function fechaHoraHorario(
 
 export default function ReportesPage() {
 
-    const [
-        usuario,
-        setUsuario
-    ] =
-        useState<UsuarioActual | null>(
-            null
-        );
+    const {
+        usuario
+    } = useAuth();
 
     const [
         horarios,
@@ -97,12 +89,14 @@ export default function ReportesPage() {
     const [
         filtroClase,
         setFiltroClase
-    ] = useState("");
+    ] =
+        useState("");
 
     const [
         horarioId,
         setHorarioId
-    ] = useState("");
+    ] =
+        useState("");
 
     const [
         reporte,
@@ -115,21 +109,29 @@ export default function ReportesPage() {
     const [
         cargando,
         setCargando
-    ] = useState(true);
+    ] =
+        useState(true);
 
     const [
         cargandoReporte,
         setCargandoReporte
-    ] = useState(false);
+    ] =
+        useState(false);
 
     const [
         error,
         setError
-    ] = useState("");
+    ] =
+        useState("");
 
     useEffect(() => {
 
-        let activo = true;
+        if (!usuario) {
+            return;
+        }
+
+        let activo =
+            true;
 
         const controller =
             new AbortController();
@@ -140,29 +142,6 @@ export default function ReportesPage() {
 
                 setCargando(true);
                 setError("");
-
-                const usuarioActual =
-                    await authService
-                        .obtenerUsuarioActual();
-
-                if (!activo) {
-                    return;
-                }
-
-                setUsuario(
-                    usuarioActual
-                );
-
-                /*
-                 * El backend no permite
-                 * reportes al rol SOCIO.
-                 */
-                if (
-                    usuarioActual.rol ===
-                    "SOCIO"
-                ) {
-                    return;
-                }
 
                 const [
                     listaHorarios,
@@ -213,10 +192,6 @@ export default function ReportesPage() {
                     paginaInstructores.contenido
                 );
 
-                /*
-                 * Seleccionamos automáticamente
-                 * el próximo horario.
-                 */
                 const ahora =
                     Date.now();
 
@@ -255,7 +230,10 @@ export default function ReportesPage() {
             } finally {
 
                 if (activo) {
-                    setCargando(false);
+
+                    setCargando(
+                        false
+                    );
                 }
             }
         }
@@ -269,7 +247,7 @@ export default function ReportesPage() {
             controller.abort();
         };
 
-    }, []);
+    }, [usuario]);
 
     const clasesPorId =
         useMemo(
@@ -316,11 +294,6 @@ export default function ReportesPage() {
             ]
         );
 
-    /*
-     * Si cambiamos la clase y el horario
-     * seleccionado ya no pertenece al filtro,
-     * usamos el primero disponible.
-     */
     useEffect(() => {
 
         if (
@@ -328,7 +301,9 @@ export default function ReportesPage() {
             horariosFiltrados.some(
                 (horario) =>
                     horario.id ===
-                    Number(horarioId)
+                    Number(
+                        horarioId
+                    )
             )
         ) {
             return;
@@ -352,7 +327,10 @@ export default function ReportesPage() {
         signal?: AbortSignal
     ) {
 
-        setCargandoReporte(true);
+        setCargandoReporte(
+            true
+        );
+
         setError("");
 
         try {
@@ -374,7 +352,9 @@ export default function ReportesPage() {
                 !isAbortError(err)
             ) {
 
-                setReporte(null);
+                setReporte(
+                    null
+                );
 
                 setError(
                     err instanceof Error
@@ -388,6 +368,7 @@ export default function ReportesPage() {
             if (
                 !signal?.aborted
             ) {
+
                 setCargandoReporte(
                     false
                 );
@@ -395,18 +376,17 @@ export default function ReportesPage() {
         }
     }
 
-    /*
-     * Cada vez que cambia el horario
-     * se vuelve a calcular la ocupación.
-     */
     useEffect(() => {
 
         if (
-            usuario?.rol === "SOCIO" ||
+            usuario?.rol ===
+            "SOCIO" ||
             !horarioId
         ) {
 
-            setReporte(null);
+            setReporte(
+                null
+            );
 
             return;
         }
@@ -415,12 +395,16 @@ export default function ReportesPage() {
             new AbortController();
 
         void consultarReporte(
-            Number(horarioId),
+            Number(
+                horarioId
+            ),
             controller.signal
         );
 
         return () => {
+
             controller.abort();
+
         };
 
     }, [
@@ -432,14 +416,15 @@ export default function ReportesPage() {
         horarios.find(
             (horario) =>
                 horario.id ===
-                Number(horarioId)
+                Number(
+                    horarioId
+                )
         );
 
     const instructorSeleccionado =
         horarioSeleccionado
             ? instructoresPorId.get(
-                horarioSeleccionado
-                    .instructorId
+                horarioSeleccionado.instructorId
             )
             : undefined;
 

@@ -4,13 +4,9 @@ import {
     useState
 } from "react";
 
-import type {
-    Plan
-} from "../models/Plan";
-
-import type {
-    PlanRequest
-} from "../services/planService";
+import {
+    useAuth
+} from "../auth/AuthContext";
 
 import PlanForm
     from "../components/PlanForm";
@@ -18,6 +14,14 @@ import PlanForm
 import {
     Button
 } from "../components/ui/Button";
+
+import {
+    EmptyState
+} from "../components/ui/EmptyState";
+
+import {
+    Pagination
+} from "../components/ui/Pagination";
 
 import {
     SearchInput
@@ -28,25 +32,34 @@ import {
 } from "../components/ui/SelectFilter";
 
 import {
-    Pagination
-} from "../components/ui/Pagination";
+    usePlanes
+} from "../hooks/usePlanes";
 
-import {
-    EmptyState
-} from "../components/ui/EmptyState";
+import type {
+    Plan
+} from "../models/Plan";
 
 import {
     planService
 } from "../services/planService";
 
-import {
-    usePlanes
-} from "../hooks/usePlanes";
+import type {
+    PlanRequest
+} from "../services/planService";
 
-import "./FitclubTables.css";
 import "./Catalogos.css";
+import "./FitclubTables.css";
 
 export default function PlanesPage() {
+
+    const {
+        tieneRol
+    } = useAuth();
+
+    const puedeAdministrar =
+        tieneRol(
+            "ADMINISTRADOR"
+        );
 
     const {
         data: planes,
@@ -96,7 +109,9 @@ export default function PlanesPage() {
     ] = useState(10);
 
     useEffect(() => {
+
         setPage(1);
+
     }, [
         search,
         pageSize
@@ -139,12 +154,18 @@ export default function PlanesPage() {
                     [
                         plan.nombre,
                         plan.descripcion,
-                        String(plan.precio),
-                        String(plan.duracionDias)
+                        String(
+                            plan.precio
+                        ),
+                        String(
+                            plan.duracionDias
+                        )
                     ]
                         .join(" ")
                         .toLowerCase()
-                        .includes(term)
+                        .includes(
+                            term
+                        )
             );
 
         }, [
@@ -164,8 +185,10 @@ export default function PlanesPage() {
     useEffect(() => {
 
         if (
-            page > totalPages
+            page >
+            totalPages
         ) {
+
             setPage(
                 totalPages
             );
@@ -197,7 +220,13 @@ export default function PlanesPage() {
 
     function nuevoPlan() {
 
-        setPlanEditar(null);
+        if (!puedeAdministrar) {
+            return;
+        }
+
+        setPlanEditar(
+            null
+        );
 
         setMostrarFormulario(
             true
@@ -210,6 +239,10 @@ export default function PlanesPage() {
     function editarPlan(
         plan: Plan
     ) {
+
+        if (!puedeAdministrar) {
+            return;
+        }
 
         setPlanEditar(
             plan
@@ -229,7 +262,9 @@ export default function PlanesPage() {
             return;
         }
 
-        setPlanEditar(null);
+        setPlanEditar(
+            null
+        );
 
         setMostrarFormulario(
             false
@@ -239,6 +274,13 @@ export default function PlanesPage() {
     async function guardarPlan(
         datos: PlanRequest
     ) {
+
+        if (!puedeAdministrar) {
+
+            throw new Error(
+                "Solo ADMINISTRADOR puede crear o editar planes."
+            );
+        }
 
         if (guardando) {
             return;
@@ -277,7 +319,9 @@ export default function PlanesPage() {
 
                 const creado =
                     await planService
-                        .crear(datos);
+                        .crear(
+                            datos
+                        );
 
                 setPlanes(
                     (actuales) => [
@@ -291,7 +335,9 @@ export default function PlanesPage() {
                 );
             }
 
-            setPlanEditar(null);
+            setPlanEditar(
+                null
+            );
 
             setMostrarFormulario(
                 false
@@ -310,7 +356,6 @@ export default function PlanesPage() {
         } finally {
 
             setGuardando(false);
-
         }
     }
 
@@ -320,14 +365,16 @@ export default function PlanesPage() {
             <header className="catalog-header">
 
                 <div>
+
                     <h1>
                         Gestión de Planes
                     </h1>
 
                     <p>
-                        Consulta, registro y edición
-                        de los planes de FitClub.
+                        Consulta de los planes
+                        disponibles en FitClub.
                     </p>
+
                 </div>
 
                 <div className="catalog-actions">
@@ -339,63 +386,78 @@ export default function PlanesPage() {
                             cargando ||
                             guardando
                         }
-                        onClick={reload}
+                        onClick={
+                            reload
+                        }
                     >
                         Actualizar lista
                     </Button>
 
-                    <Button
-                        type="button"
-                        disabled={
-                            cargando ||
-                            guardando
-                        }
-                        onClick={
-                            nuevoPlan
-                        }
-                    >
-                        + Nuevo plan
-                    </Button>
+                    {puedeAdministrar && (
+
+                        <Button
+                            type="button"
+                            disabled={
+                                cargando ||
+                                guardando
+                            }
+                            onClick={
+                                nuevoPlan
+                            }
+                        >
+                            + Nuevo plan
+                        </Button>
+
+                    )}
 
                 </div>
 
             </header>
 
             {mensaje && (
+
                 <div
                     className="catalog-success"
                     role="status"
                 >
                     {mensaje}
                 </div>
+
             )}
 
             {error && (
+
                 <div
                     className="catalog-error"
                     role="alert"
                 >
                     {error}
                 </div>
+
             )}
 
-            {mostrarFormulario && (
-                <PlanForm
-                    key={
-                        planEditar?.id ??
-                        "nuevo"
-                    }
-                    planEditar={
-                        planEditar
-                    }
-                    onGuardar={
-                        guardarPlan
-                    }
-                    onCancelar={
-                        cancelarFormulario
-                    }
-                />
-            )}
+            {
+                puedeAdministrar &&
+                mostrarFormulario && (
+
+                    <PlanForm
+                        key={
+                            planEditar?.id ??
+                            "nuevo"
+                        }
+                        planEditar={
+                            planEditar
+                        }
+                        onGuardar={
+                            guardarPlan
+                        }
+                        onCancelar={
+                            cancelarFormulario
+                        }
+                    />
+
+                )
+            }
 
             <section className="filter-panel">
 
@@ -403,7 +465,9 @@ export default function PlanesPage() {
 
                     <SearchInput
                         label="Buscar plan"
-                        value={search}
+                        value={
+                            search
+                        }
                         placeholder={
                             "Nombre, descripción, precio o duración"
                         }
@@ -415,7 +479,9 @@ export default function PlanesPage() {
                     <SelectFilter
                         label="Registros por página"
                         value={
-                            String(pageSize)
+                            String(
+                                pageSize
+                            )
                         }
                         options={[
                             {
@@ -434,7 +500,9 @@ export default function PlanesPage() {
                         onChange={
                             (value) =>
                                 setPageSize(
-                                    Number(value)
+                                    Number(
+                                        value
+                                    )
                                 )
                         }
                     />
@@ -444,11 +512,13 @@ export default function PlanesPage() {
             </section>
 
             <p className="results-summary">
+
                 Mostrando{" "}
                 {planesVisibles.length}
                 {" "}de{" "}
                 {planesFiltrados.length}
                 {" "}resultado(s).
+
             </p>
 
             {cargando ? (
@@ -462,7 +532,9 @@ export default function PlanesPage() {
                 <EmptyState
                     title="No se encontraron planes"
                     description={
-                        "Prueba con otro término de búsqueda o registra un nuevo plan."
+                        puedeAdministrar
+                            ? "Prueba con otro término o registra un nuevo plan."
+                            : "Prueba con otro término de búsqueda."
                     }
                 />
 
@@ -475,14 +547,21 @@ export default function PlanesPage() {
                         <table className="fitclub-table">
 
                             <thead>
+
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Descripción</th>
                                 <th>Precio (Bs)</th>
                                 <th>Duración</th>
-                                <th>Acciones</th>
+
+                                {puedeAdministrar && (
+                                    <th>
+                                        Acciones
+                                    </th>
+                                )}
                             </tr>
+
                             </thead>
 
                             <tbody>
@@ -501,39 +580,55 @@ export default function PlanesPage() {
                                         </td>
 
                                         <td>
-                                            {plan.descripcion || "—"}
+                                            {
+                                                plan.descripcion ||
+                                                "—"
+                                            }
                                         </td>
 
                                         <td>
-                                            {Number(
-                                                plan.precio
-                                            ).toFixed(2)}
-                                        </td>
-
-                                        <td>
-                                            {plan.duracionDias} días
-                                        </td>
-
-                                        <td>
-
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                disabled={
-                                                    guardando
-                                                }
-                                                onClick={() =>
-                                                    editarPlan(
-                                                        plan
+                                            {
+                                                Number(
+                                                    plan.precio
+                                                )
+                                                    .toFixed(
+                                                        2
                                                     )
-                                                }
-                                            >
-                                                Editar
-                                            </Button>
-
+                                            }
                                         </td>
+
+                                        <td>
+                                            {
+                                                plan.duracionDias
+                                            }{" "}
+                                            días
+                                        </td>
+
+                                        {puedeAdministrar && (
+
+                                            <td>
+
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    disabled={
+                                                        guardando
+                                                    }
+                                                    onClick={() =>
+                                                        editarPlan(
+                                                            plan
+                                                        )
+                                                    }
+                                                >
+                                                    Editar
+                                                </Button>
+
+                                            </td>
+
+                                        )}
 
                                     </tr>
+
                                 )
                             )}
 
@@ -544,7 +639,9 @@ export default function PlanesPage() {
                     </div>
 
                     <Pagination
-                        page={page}
+                        page={
+                            page
+                        }
                         totalPages={
                             totalPages
                         }
@@ -558,9 +655,11 @@ export default function PlanesPage() {
             )}
 
             <p className="catalog-note">
-                Crear o editar planes requiere rol
-                ADMINISTRADOR. Los demás roles
-                autenticados pueden consultarlos.
+
+                {puedeAdministrar
+                    ? "Tienes permisos para consultar, crear y editar planes."
+                    : "Tu rol tiene acceso de consulta. Crear y editar planes requiere ADMINISTRADOR."}
+
             </p>
 
         </section>

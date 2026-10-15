@@ -5,8 +5,9 @@ import {
 } from "react";
 
 import type {
-    SocioApi,
-    MembresiaRequest
+    HistorialMembresiaApi,
+    MembresiaRequest,
+    SocioApi
 } from "../models/ApiModels";
 
 import type {
@@ -14,15 +15,38 @@ import type {
 } from "../models/Plan";
 
 import type {
-    Membresia,
-    EstadoMembresia
+    EstadoMembresia,
+    Membresia
 } from "../models/Membresia";
+
+import HistorialMembresiaTable
+    from "../components/HistorialMembresiaTable";
 
 import MembresiaForm
     from "../components/MembresiaForm";
 
 import MembresiaTable
     from "../components/MembresiaTable";
+
+import {
+    Button
+} from "../components/ui/Button";
+
+import {
+    ConfirmDialog
+} from "../components/ui/ConfirmDialog";
+
+import {
+    EmptyState
+} from "../components/ui/EmptyState";
+
+import {
+    MetricCard
+} from "../components/ui/MetricCard";
+
+import {
+    Pagination
+} from "../components/ui/Pagination";
 
 import {
     SearchInput
@@ -33,34 +57,31 @@ import {
 } from "../components/ui/SelectFilter";
 
 import {
-    Pagination
-} from "../components/ui/Pagination";
+    historialMembresiaService
+} from "../services/historialMembresiaService";
 
 import {
-    EmptyState
-} from "../components/ui/EmptyState";
-
-import {
-    ConfirmDialog
-} from "../components/ui/ConfirmDialog";
-
-import {
-    Button
-} from "../components/ui/Button";
-
-import {
-    socioService
-} from "../services/socioService";
+    membresiaService
+} from "../services/membresiaService";
 
 import {
     planService
 } from "../services/planService";
 
 import {
-    membresiaService
-} from "../services/membresiaService";
+    socioService
+} from "../services/socioService";
+
+import {
+    isAbortError
+} from "../utils/isAbortError";
 
 import "./FitclubTables.css";
+import "./Membresias.css";
+
+type VistaMembresias =
+    | "MEMBRESIAS"
+    | "HISTORIAL";
 
 export default function MembresiasPage() {
 
@@ -69,6 +90,14 @@ export default function MembresiasPage() {
         setMembresias
     ] =
         useState<Membresia[]>([]);
+
+    const [
+        historial,
+        setHistorial
+    ] =
+        useState<
+            HistorialMembresiaApi[]
+        >([]);
 
     const [
         socios,
@@ -85,7 +114,8 @@ export default function MembresiasPage() {
     const [
         cargando,
         setCargando
-    ] = useState(true);
+    ] =
+        useState(true);
 
     const [
         procesandoId,
@@ -98,7 +128,8 @@ export default function MembresiasPage() {
     const [
         mostrarFormulario,
         setMostrarFormulario
-    ] = useState(false);
+    ] =
+        useState(false);
 
     const [
         pendingCancel,
@@ -109,9 +140,18 @@ export default function MembresiasPage() {
         );
 
     const [
+        vista,
+        setVista
+    ] =
+        useState<VistaMembresias>(
+            "MEMBRESIAS"
+        );
+
+    const [
         search,
         setSearch
-    ] = useState("");
+    ] =
+        useState("");
 
     const [
         estado,
@@ -124,81 +164,152 @@ export default function MembresiasPage() {
     const [
         page,
         setPage
-    ] = useState(1);
+    ] =
+        useState(1);
 
     const [
         pageSize,
         setPageSize
-    ] = useState(10);
+    ] =
+        useState(10);
+
+    const [
+        searchHistorial,
+        setSearchHistorial
+    ] =
+        useState("");
+
+    const [
+        pageHistorial,
+        setPageHistorial
+    ] =
+        useState(1);
+
+    const [
+        pageSizeHistorial,
+        setPageSizeHistorial
+    ] =
+        useState(10);
 
     const [
         error,
         setError
-    ] = useState("");
+    ] =
+        useState("");
 
     const [
         mensaje,
         setMensaje
-    ] = useState("");
+    ] =
+        useState("");
 
     useEffect(() => {
 
-        let activo = true;
+        let activo =
+            true;
 
-        Promise.all([
-            membresiaService.listar(),
-            socioService.listar(
-                0,
-                100
-            ),
-            planService.listar()
-        ])
-            .then(
-                ([
-                     listaMembresias,
-                     paginaSocios,
-                     listaPlanes
-                 ]) => {
+        const controller =
+            new AbortController();
 
-                    if (!activo) {
-                        return;
-                    }
+        async function cargarDatos() {
 
-                    setMembresias(
-                        listaMembresias
-                    );
+            try {
 
-                    setSocios(
-                        paginaSocios.contenido
-                    );
+                setCargando(
+                    true
+                );
 
-                    setPlanes(
-                        listaPlanes
+                setError("");
+
+                const [
+                    listaMembresias,
+                    listaHistorial,
+                    paginaSocios,
+                    listaPlanes
+                ] =
+                    await Promise.all([
+
+                        membresiaService.listar(
+                            undefined,
+                            undefined,
+                            controller.signal
+                        ),
+
+                        historialMembresiaService.listar(
+                            controller.signal
+                        ),
+
+                        socioService.listar(
+                            0,
+                            100,
+                            controller.signal
+                        ),
+
+                        planService.listar(
+                            controller.signal
+                        )
+
+                    ]);
+
+                if (!activo) {
+                    return;
+                }
+
+                setMembresias(
+                    listaMembresias
+                );
+
+                setHistorial(
+                    [
+                        ...listaHistorial
+                    ].sort(
+                        (a, b) =>
+                            b.fechaCambio.localeCompare(
+                                a.fechaCambio
+                            )
+                    )
+                );
+
+                setSocios(
+                    paginaSocios.contenido
+                );
+
+                setPlanes(
+                    listaPlanes
+                );
+
+            } catch (err) {
+
+                if (
+                    activo &&
+                    !isAbortError(err)
+                ) {
+
+                    setError(
+                        err instanceof Error
+                            ? err.message
+                            : "No se pudieron cargar las membresías."
                     );
                 }
-            )
-            .catch(
-                (err: unknown) => {
 
-                    if (activo) {
-
-                        setError(
-                            err instanceof Error
-                                ? err.message
-                                : "No se pudieron cargar las membresías."
-                        );
-                    }
-                }
-            )
-            .finally(() => {
+            } finally {
 
                 if (activo) {
-                    setCargando(false);
+
+                    setCargando(
+                        false
+                    );
                 }
-            });
+            }
+        }
+
+        void cargarDatos();
 
         return () => {
+
             activo = false;
+
+            controller.abort();
         };
 
     }, []);
@@ -212,6 +323,37 @@ export default function MembresiasPage() {
         estado,
         pageSize
     ]);
+
+    useEffect(() => {
+
+        setPageHistorial(
+            1
+        );
+
+    }, [
+        searchHistorial,
+        pageSizeHistorial
+    ]);
+
+    useEffect(() => {
+
+        if (!mensaje) {
+            return;
+        }
+
+        const timer =
+            window.setTimeout(
+                () =>
+                    setMensaje(""),
+                2500
+            );
+
+        return () =>
+            window.clearTimeout(
+                timer
+            );
+
+    }, [mensaje]);
 
     const sociosPorId =
         useMemo(
@@ -241,6 +383,56 @@ export default function MembresiasPage() {
             [planes]
         );
 
+    const membresiasPorId =
+        useMemo(
+            () =>
+                new Map(
+                    membresias.map(
+                        (membresia) => [
+                            membresia.id,
+                            membresia
+                        ]
+                    )
+                ),
+            [membresias]
+        );
+
+    const resumen =
+        useMemo(
+            () => ({
+
+                activas:
+                membresias.filter(
+                    (membresia) =>
+                        membresia.estado ===
+                        "ACTIVA"
+                ).length,
+
+                vencidas:
+                membresias.filter(
+                    (membresia) =>
+                        membresia.estado ===
+                        "VENCIDA"
+                ).length,
+
+                suspendidas:
+                membresias.filter(
+                    (membresia) =>
+                        membresia.estado ===
+                        "SUSPENDIDA"
+                ).length,
+
+                canceladas:
+                membresias.filter(
+                    (membresia) =>
+                        membresia.estado ===
+                        "CANCELADA"
+                ).length
+
+            }),
+            [membresias]
+        );
+
     const membresiasFiltradas =
         useMemo(() => {
 
@@ -268,14 +460,18 @@ export default function MembresiasPage() {
                             socio?.nombre ?? "",
                             socio?.email ?? "",
                             plan?.nombre ?? "",
-                            membresia.estado
+                            membresia.estado,
+                            membresia.fechaInicio,
+                            membresia.fechaFin
                         ]
                             .join(" ")
                             .toLowerCase();
 
                     const coincideTexto =
                         !term ||
-                        texto.includes(term);
+                        texto.includes(
+                            term
+                        );
 
                     const coincideEstado =
                         !estado ||
@@ -297,6 +493,84 @@ export default function MembresiasPage() {
             planesPorId
         ]);
 
+    const historialFiltrado =
+        useMemo(() => {
+
+            const term =
+                searchHistorial
+                    .trim()
+                    .toLowerCase();
+
+            if (!term) {
+                return historial;
+            }
+
+            return historial.filter(
+                (registro) => {
+
+                    const membresia =
+                        membresiasPorId.get(
+                            registro.membresiaId
+                        );
+
+                    const socio =
+                        membresia
+                            ? sociosPorId.get(
+                                membresia.socioId
+                            )
+                            : undefined;
+
+                    const plan =
+                        membresia
+                            ? planesPorId.get(
+                                membresia.planId
+                            )
+                            : undefined;
+
+                    const texto = [
+
+                        registro.id,
+
+                        registro.membresiaId,
+
+                        registro.estadoAnterior ??
+                        "creada",
+
+                        registro.estadoNuevo,
+
+                        registro.motivo,
+
+                        registro.usuarioEmail,
+
+                        registro.fechaCambio,
+
+                        socio?.nombre ??
+                        "",
+
+                        socio?.email ??
+                        "",
+
+                        plan?.nombre ??
+                        ""
+
+                    ]
+                        .join(" ")
+                        .toLowerCase();
+
+                    return texto.includes(
+                        term
+                    );
+                }
+            );
+
+        }, [
+            historial,
+            searchHistorial,
+            membresiasPorId,
+            sociosPorId,
+            planesPorId
+        ]);
+
     const totalPages =
         Math.max(
             1,
@@ -306,11 +580,22 @@ export default function MembresiasPage() {
             )
         );
 
+    const totalPagesHistorial =
+        Math.max(
+            1,
+            Math.ceil(
+                historialFiltrado.length /
+                pageSizeHistorial
+            )
+        );
+
     useEffect(() => {
 
         if (
-            page > totalPages
+            page >
+            totalPages
         ) {
+
             setPage(
                 totalPages
             );
@@ -321,6 +606,23 @@ export default function MembresiasPage() {
         totalPages
     ]);
 
+    useEffect(() => {
+
+        if (
+            pageHistorial >
+            totalPagesHistorial
+        ) {
+
+            setPageHistorial(
+                totalPagesHistorial
+            );
+        }
+
+    }, [
+        pageHistorial,
+        totalPagesHistorial
+    ]);
+
     const visibles =
         useMemo(() => {
 
@@ -328,10 +630,11 @@ export default function MembresiasPage() {
                 (page - 1) *
                 pageSize;
 
-            return membresiasFiltradas.slice(
-                inicio,
-                inicio + pageSize
-            );
+            return membresiasFiltradas
+                .slice(
+                    inicio,
+                    inicio + pageSize
+                );
 
         }, [
             membresiasFiltradas,
@@ -339,13 +642,67 @@ export default function MembresiasPage() {
             pageSize
         ]);
 
+    const historialVisible =
+        useMemo(() => {
+
+            const inicio =
+                (pageHistorial - 1) *
+                pageSizeHistorial;
+
+            return historialFiltrado
+                .slice(
+                    inicio,
+                    inicio +
+                    pageSizeHistorial
+                );
+
+        }, [
+            historialFiltrado,
+            pageHistorial,
+            pageSizeHistorial
+        ]);
+
+    function actualizarEnLista(
+        actualizada: Membresia
+    ) {
+
+        setMembresias(
+            (anteriores) =>
+                anteriores.map(
+                    (membresia) =>
+                        membresia.id ===
+                        actualizada.id
+                            ? actualizada
+                            : membresia
+                )
+        );
+    }
+
+    async function refrescarHistorial() {
+
+        const lista =
+            await historialMembresiaService
+                .listar();
+
+        setHistorial(
+            [...lista].sort(
+                (a, b) =>
+                    b.fechaCambio.localeCompare(
+                        a.fechaCambio
+                    )
+            )
+        );
+    }
+
     async function guardarMembresia(
         datos: MembresiaRequest
     ) {
 
         const creada =
             await membresiaService
-                .crear(datos);
+                .crear(
+                    datos
+                );
 
         setMembresias(
             (anteriores) => [
@@ -353,6 +710,8 @@ export default function MembresiasPage() {
                 ...anteriores
             ]
         );
+
+        await refrescarHistorial();
 
         setMostrarFormulario(
             false
@@ -387,6 +746,8 @@ export default function MembresiasPage() {
                 actualizada
             );
 
+            await refrescarHistorial();
+
             setMensaje(
                 "Membresía suspendida correctamente."
             );
@@ -401,8 +762,9 @@ export default function MembresiasPage() {
 
         } finally {
 
-            setProcesandoId(null);
-
+            setProcesandoId(
+                null
+            );
         }
     }
 
@@ -428,6 +790,8 @@ export default function MembresiasPage() {
                 actualizada
             );
 
+            await refrescarHistorial();
+
             setMensaje(
                 "Membresía reactivada correctamente."
             );
@@ -442,25 +806,10 @@ export default function MembresiasPage() {
 
         } finally {
 
-            setProcesandoId(null);
-
+            setProcesandoId(
+                null
+            );
         }
-    }
-
-    function actualizarEnLista(
-        actualizada: Membresia
-    ) {
-
-        setMembresias(
-            (anteriores) =>
-                anteriores.map(
-                    (membresia) =>
-                        membresia.id ===
-                        actualizada.id
-                            ? actualizada
-                            : membresia
-                )
-        );
     }
 
     async function confirmarCancelar() {
@@ -490,6 +839,8 @@ export default function MembresiasPage() {
                 actualizada
             );
 
+            await refrescarHistorial();
+
             setPendingCancel(
                 null
             );
@@ -508,217 +859,584 @@ export default function MembresiasPage() {
 
         } finally {
 
-            setProcesandoId(null);
+            setProcesandoId(
+                null
+            );
+        }
+    }
 
+    async function actualizarTodo() {
+
+        setCargando(
+            true
+        );
+
+        setError("");
+
+        try {
+
+            const [
+                listaMembresias,
+                listaHistorial
+            ] =
+                await Promise.all([
+
+                    membresiaService.listar(),
+
+                    historialMembresiaService
+                        .listar()
+
+                ]);
+
+            setMembresias(
+                listaMembresias
+            );
+
+            setHistorial(
+                [...listaHistorial].sort(
+                    (a, b) =>
+                        b.fechaCambio.localeCompare(
+                            a.fechaCambio
+                        )
+                )
+            );
+
+            setMensaje(
+                "Membresías e historial actualizados."
+            );
+
+        } catch (err) {
+
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "No se pudo actualizar la información."
+            );
+
+        } finally {
+
+            setCargando(
+                false
+            );
         }
     }
 
     return (
         <section className="module-page">
 
-            <h1>
-                Gestión de Membresías
-            </h1>
+            <header className="module-toolbar">
 
-            <p>
-                Búsqueda, filtros,
-                estados y acciones.
-            </p>
+                <div>
 
-            <div className="module-toolbar">
+                    <h1>
+                        Gestión de Membresías
+                    </h1>
 
-                <div />
+                    <p>
+                        Vigencias, cambios de estado
+                        e historial de membresías.
+                    </p>
+
+                </div>
 
                 <div className="module-toolbar__actions">
 
                     <Button
                         type="button"
+                        variant="secondary"
+                        disabled={
+                            cargando ||
+                            procesandoId !==
+                            null
+                        }
                         onClick={() =>
-                            setMostrarFormulario(
-                                (valor) => !valor
-                            )
+                            void actualizarTodo()
                         }
                     >
-                        {mostrarFormulario
-                            ? "Cerrar formulario"
-                            : "+ Nueva membresía"}
+                        Actualizar
                     </Button>
 
+                    {
+                        vista ===
+                        "MEMBRESIAS" && (
+
+                            <Button
+                                type="button"
+                                disabled={
+                                    cargando ||
+                                    procesandoId !==
+                                    null
+                                }
+                                onClick={() =>
+                                    setMostrarFormulario(
+                                        (valor) =>
+                                            !valor
+                                    )
+                                }
+                            >
+
+                                {mostrarFormulario
+                                    ? "Cerrar formulario"
+                                    : "+ Nueva membresía"}
+
+                            </Button>
+
+                        )
+                    }
+
                 </div>
+
+            </header>
+
+            <div className="memberships-summary">
+
+                <MetricCard
+                    label="Activas"
+                    value={
+                        resumen.activas
+                    }
+                    helper="Membresías vigentes"
+                />
+
+                <MetricCard
+                    label="Vencidas"
+                    value={
+                        resumen.vencidas
+                    }
+                    helper="Vigencia finalizada"
+                />
+
+                <MetricCard
+                    label="Suspendidas"
+                    value={
+                        resumen.suspendidas
+                    }
+                    helper="Temporalmente inactivas"
+                />
+
+                <MetricCard
+                    label="Canceladas"
+                    value={
+                        resumen.canceladas
+                    }
+                    helper="Finalizadas manualmente"
+                />
+
+            </div>
+
+            <div className="memberships-view-switch">
+
+                <Button
+                    type="button"
+                    variant={
+                        vista ===
+                        "MEMBRESIAS"
+                            ? "primary"
+                            : "secondary"
+                    }
+                    onClick={() =>
+                        setVista(
+                            "MEMBRESIAS"
+                        )
+                    }
+                >
+                    Membresías
+                </Button>
+
+                <Button
+                    type="button"
+                    variant={
+                        vista ===
+                        "HISTORIAL"
+                            ? "primary"
+                            : "secondary"
+                    }
+                    onClick={() => {
+
+                        setVista(
+                            "HISTORIAL"
+                        );
+
+                        setMostrarFormulario(
+                            false
+                        );
+
+                    }}
+                >
+                    Historial de cambios
+                </Button>
+
             </div>
 
             {mensaje && (
+
                 <p role="status">
                     {mensaje}
                 </p>
+
             )}
 
             {error && (
+
                 <p
                     className="field-error"
                     role="alert"
                 >
                     {error}
                 </p>
-            )}
-
-            {mostrarFormulario && (
-                <MembresiaForm
-                    socios={socios}
-                    planes={planes}
-                    onGuardar={
-                        guardarMembresia
-                    }
-                />
-            )}
-
-            <section className="filter-panel">
-
-                <div className="filter-panel__grid">
-
-                    <SearchInput
-                        label="Buscar membresía"
-                        value={search}
-                        placeholder={
-                            "Socio, plan o estado"
-                        }
-                        onChange={
-                            setSearch
-                        }
-                    />
-
-                    <SelectFilter
-                        label="Estado"
-                        value={estado}
-                        options={[
-                            {
-                                value: "",
-                                label:
-                                    "Todos los estados"
-                            },
-                            {
-                                value: "ACTIVA",
-                                label: "ACTIVA"
-                            },
-                            {
-                                value: "SUSPENDIDA",
-                                label: "SUSPENDIDA"
-                            },
-                            {
-                                value: "VENCIDA",
-                                label: "VENCIDA"
-                            },
-                            {
-                                value: "CANCELADA",
-                                label: "CANCELADA"
-                            }
-                        ]}
-                        onChange={(value) =>
-                            setEstado(
-                                value as
-                                    EstadoMembresia |
-                                    ""
-                            )
-                        }
-                    />
-
-                    <SelectFilter
-                        label="Registros por página"
-                        value={
-                            String(pageSize)
-                        }
-                        options={[
-                            {
-                                value: "5",
-                                label: "5"
-                            },
-                            {
-                                value: "10",
-                                label: "10"
-                            },
-                            {
-                                value: "20",
-                                label: "20"
-                            }
-                        ]}
-                        onChange={(value) =>
-                            setPageSize(
-                                Number(value)
-                            )
-                        }
-                    />
-
-                </div>
-
-            </section>
-
-            <p className="results-summary">
-                Mostrando{" "}
-                {visibles.length} de{" "}
-                {membresiasFiltradas.length}
-                {" "}resultado(s).
-            </p>
-
-            {cargando ? (
-
-                <p>
-                    Cargando membresías...
-                </p>
-
-            ) : membresiasFiltradas.length === 0 ? (
-
-                <EmptyState
-                    title="No hay membresías"
-                    description={
-                        "No existen registros que coincidan con los filtros."
-                    }
-                />
-
-            ) : (
-
-                <>
-                    <MembresiaTable
-                        membresias={
-                            visibles
-                        }
-                        socios={socios}
-                        planes={planes}
-                        procesandoId={
-                            procesandoId
-                        }
-                        onSuspender={
-                            (membresia) =>
-                                void suspender(
-                                    membresia
-                                )
-                        }
-                        onReactivar={
-                            (membresia) =>
-                                void reactivar(
-                                    membresia
-                                )
-                        }
-                        onCancelar={
-                            setPendingCancel
-                        }
-                    />
-
-                    <Pagination
-                        page={page}
-                        totalPages={
-                            totalPages
-                        }
-                        onPageChange={
-                            setPage
-                        }
-                    />
-                </>
 
             )}
+
+            {
+                vista ===
+                "MEMBRESIAS"
+                    ? (
+
+                        <>
+
+                            {mostrarFormulario && (
+
+                                <MembresiaForm
+                                    socios={
+                                        socios
+                                    }
+                                    planes={
+                                        planes
+                                    }
+                                    onGuardar={
+                                        guardarMembresia
+                                    }
+                                />
+
+                            )}
+
+                            <section className="filter-panel">
+
+                                <div className="filter-panel__grid">
+
+                                    <SearchInput
+                                        label="Buscar membresía"
+                                        value={
+                                            search
+                                        }
+                                        placeholder={
+                                            "Socio, plan, fecha o estado"
+                                        }
+                                        onChange={
+                                            setSearch
+                                        }
+                                    />
+
+                                    <SelectFilter
+                                        label="Estado"
+                                        value={
+                                            estado
+                                        }
+                                        options={[
+                                            {
+                                                value: "",
+                                                label:
+                                                    "Todos los estados"
+                                            },
+                                            {
+                                                value:
+                                                    "ACTIVA",
+                                                label:
+                                                    "ACTIVA"
+                                            },
+                                            {
+                                                value:
+                                                    "SUSPENDIDA",
+                                                label:
+                                                    "SUSPENDIDA"
+                                            },
+                                            {
+                                                value:
+                                                    "VENCIDA",
+                                                label:
+                                                    "VENCIDA"
+                                            },
+                                            {
+                                                value:
+                                                    "CANCELADA",
+                                                label:
+                                                    "CANCELADA"
+                                            }
+                                        ]}
+                                        onChange={
+                                            (value) =>
+                                                setEstado(
+                                                    value as
+                                                        EstadoMembresia |
+                                                        ""
+                                                )
+                                        }
+                                    />
+
+                                    <SelectFilter
+                                        label="Registros por página"
+                                        value={
+                                            String(
+                                                pageSize
+                                            )
+                                        }
+                                        options={[
+                                            {
+                                                value: "5",
+                                                label: "5"
+                                            },
+                                            {
+                                                value: "10",
+                                                label: "10"
+                                            },
+                                            {
+                                                value: "20",
+                                                label: "20"
+                                            }
+                                        ]}
+                                        onChange={
+                                            (value) =>
+                                                setPageSize(
+                                                    Number(
+                                                        value
+                                                    )
+                                                )
+                                        }
+                                    />
+
+                                </div>
+
+                            </section>
+
+                            <p className="results-summary">
+
+                                Mostrando{" "}
+                                {
+                                    visibles.length
+                                }
+                                {" "}de{" "}
+                                {
+                                    membresiasFiltradas.length
+                                }
+                                {" "}resultado(s).
+
+                            </p>
+
+                            {cargando ? (
+
+                                <p>
+                                    Cargando membresías...
+                                </p>
+
+                            ) : membresiasFiltradas.length ===
+                            0 ? (
+
+                                <EmptyState
+                                    title="No hay membresías"
+                                    description={
+                                        "No existen registros que coincidan con los filtros."
+                                    }
+                                />
+
+                            ) : (
+
+                                <>
+
+                                    <MembresiaTable
+                                        membresias={
+                                            visibles
+                                        }
+                                        socios={
+                                            socios
+                                        }
+                                        planes={
+                                            planes
+                                        }
+                                        procesandoId={
+                                            procesandoId
+                                        }
+                                        onSuspender={
+                                            (
+                                                membresia
+                                            ) =>
+                                                void suspender(
+                                                    membresia
+                                                )
+                                        }
+                                        onReactivar={
+                                            (
+                                                membresia
+                                            ) =>
+                                                void reactivar(
+                                                    membresia
+                                                )
+                                        }
+                                        onCancelar={
+                                            setPendingCancel
+                                        }
+                                    />
+
+                                    <Pagination
+                                        page={
+                                            page
+                                        }
+                                        totalPages={
+                                            totalPages
+                                        }
+                                        onPageChange={
+                                            setPage
+                                        }
+                                    />
+
+                                </>
+
+                            )}
+
+                        </>
+
+                    )
+                    : (
+
+                        <>
+
+                            <section className="filter-panel">
+
+                                <div className="filter-panel__grid">
+
+                                    <SearchInput
+                                        label="Buscar en historial"
+                                        value={
+                                            searchHistorial
+                                        }
+                                        placeholder={
+                                            "Socio, plan, estado, motivo o usuario"
+                                        }
+                                        onChange={
+                                            setSearchHistorial
+                                        }
+                                    />
+
+                                    <SelectFilter
+                                        label="Registros por página"
+                                        value={
+                                            String(
+                                                pageSizeHistorial
+                                            )
+                                        }
+                                        options={[
+                                            {
+                                                value: "5",
+                                                label: "5"
+                                            },
+                                            {
+                                                value: "10",
+                                                label: "10"
+                                            },
+                                            {
+                                                value: "20",
+                                                label: "20"
+                                            }
+                                        ]}
+                                        onChange={
+                                            (value) =>
+                                                setPageSizeHistorial(
+                                                    Number(
+                                                        value
+                                                    )
+                                                )
+                                        }
+                                    />
+
+                                </div>
+
+                            </section>
+
+                            <p className="results-summary">
+
+                                Mostrando{" "}
+                                {
+                                    historialVisible.length
+                                }
+                                {" "}de{" "}
+                                {
+                                    historialFiltrado.length
+                                }
+                                {" "}cambio(s).
+
+                            </p>
+
+                            {cargando ? (
+
+                                <p>
+                                    Cargando historial...
+                                </p>
+
+                            ) : historialFiltrado.length ===
+                            0 ? (
+
+                                <EmptyState
+                                    title="No hay historial"
+                                    description={
+                                        "Todavía no existen cambios de membresía que coincidan con la búsqueda."
+                                    }
+                                />
+
+                            ) : (
+
+                                <>
+
+                                    <HistorialMembresiaTable
+                                        historial={
+                                            historialVisible
+                                        }
+                                        membresias={
+                                            membresias
+                                        }
+                                        socios={
+                                            socios
+                                        }
+                                        planes={
+                                            planes
+                                        }
+                                    />
+
+                                    <Pagination
+                                        page={
+                                            pageHistorial
+                                        }
+                                        totalPages={
+                                            totalPagesHistorial
+                                        }
+                                        onPageChange={
+                                            setPageHistorial
+                                        }
+                                    />
+
+                                </>
+
+                            )}
+
+                            <p className="memberships-note">
+
+                                El historial se registra
+                                en el backend cuando una
+                                membresía se crea, suspende,
+                                reactiva, cancela o vence.
+
+                                Los vencimientos automáticos
+                                aparecen con usuario SISTEMA.
+
+                            </p>
+
+                        </>
+
+                    )
+            }
 
             <ConfirmDialog
                 open={
-                    pendingCancel !== null
+                    pendingCancel !==
+                    null
                 }
                 title="Cancelar membresía"
                 message={
@@ -728,13 +1446,16 @@ export default function MembresiasPage() {
                 }
                 confirmLabel="Cancelar membresía"
                 confirming={
-                    procesandoId !== null
+                    procesandoId !==
+                    null
                 }
                 onConfirm={() =>
                     void confirmarCancelar()
                 }
                 onCancel={() =>
-                    setPendingCancel(null)
+                    setPendingCancel(
+                        null
+                    )
                 }
             />
 

@@ -6,15 +6,22 @@ import {
     isAbortError
 } from "../utils/isAbortError";
 
+import {
+    notificarSesionNoAutorizada,
+    obtenerToken
+} from "../auth/authStorage";
+
 export class ApiError
     extends Error {
 
-    public readonly status: number;
+    public readonly status:
+        number;
 
     constructor(
         status: number,
         mensaje: string
     ) {
+
         super(mensaje);
 
         this.name =
@@ -66,6 +73,7 @@ function obtenerMensajeError(
     }
 
     if (status === 401) {
+
         return (
             "Sesión inválida o vencida. " +
             "Inicia sesión nuevamente."
@@ -73,6 +81,7 @@ function obtenerMensajeError(
     }
 
     if (status === 403) {
+
         return (
             "Tu usuario no tiene permiso " +
             "para realizar esta acción."
@@ -80,12 +89,14 @@ function obtenerMensajeError(
     }
 
     if (status === 404) {
+
         return (
             "El recurso solicitado no existe."
         );
     }
 
     if (status === 409) {
+
         return (
             "La operación entra en conflicto " +
             "con los datos existentes."
@@ -93,6 +104,7 @@ function obtenerMensajeError(
     }
 
     if (status >= 500) {
+
         return (
             "Ocurrió un error en el servidor."
         );
@@ -103,13 +115,12 @@ function obtenerMensajeError(
 
 async function request<T>(
     ruta: string,
-    opciones: RequestInit = {}
+    opciones:
+    RequestInit = {}
 ): Promise<T> {
 
     const token =
-        sessionStorage.getItem(
-            "fitclub_token"
-        );
+        obtenerToken();
 
     const headers =
         new Headers(
@@ -127,6 +138,7 @@ async function request<T>(
             "Content-Type"
         )
     ) {
+
         headers.set(
             "Content-Type",
             "application/json"
@@ -134,6 +146,7 @@ async function request<T>(
     }
 
     if (token) {
+
         headers.set(
             "Authorization",
             `Bearer ${token}`
@@ -143,7 +156,8 @@ async function request<T>(
     const url =
         `${API_URL}/${ruta.replace(/^\//, "")}`;
 
-    let respuesta: Response;
+    let respuesta:
+        Response;
 
     try {
 
@@ -161,6 +175,7 @@ async function request<T>(
         if (
             isAbortError(error)
         ) {
+
             throw error;
         }
 
@@ -173,24 +188,40 @@ async function request<T>(
     const texto =
         await respuesta.text();
 
-    let datos: unknown =
-        null;
+    let datos:
+        unknown = null;
 
     if (texto) {
 
         try {
+
             datos =
                 JSON.parse(
                     texto
                 ) as unknown;
 
         } catch {
+
             datos =
                 texto;
         }
     }
 
     if (!respuesta.ok) {
+
+        /*
+         * JWT inválido o vencido.
+         *
+         * Ya no dejamos la aplicación
+         * creyendo que sigue autenticada.
+         */
+        if (
+            respuesta.status ===
+            401
+        ) {
+
+            notificarSesionNoAutorizada();
+        }
 
         throw new ApiError(
             respuesta.status,
@@ -207,6 +238,7 @@ async function request<T>(
         204 ||
         !texto
     ) {
+
         return undefined as T;
     }
 
@@ -239,10 +271,12 @@ export const apiClient = {
             ruta,
             {
                 method: "POST",
+
                 body:
                     JSON.stringify(
                         datos
                     ),
+
                 signal
             }
         );
@@ -258,10 +292,12 @@ export const apiClient = {
             ruta,
             {
                 method: "PUT",
+
                 body:
                     JSON.stringify(
                         datos
                     ),
+
                 signal
             }
         );
@@ -277,10 +313,12 @@ export const apiClient = {
             ruta,
             {
                 method: "PATCH",
+
                 body:
                     JSON.stringify(
                         datos
                     ),
+
                 signal
             }
         );

@@ -5,8 +5,8 @@ import {
 } from "react";
 
 import {
-    MetricCard
-} from "../components/ui/MetricCard";
+    useAuth
+} from "../auth/AuthContext";
 
 import {
     Button
@@ -15,6 +15,10 @@ import {
 import {
     EmptyState
 } from "../components/ui/EmptyState";
+
+import {
+    MetricCard
+} from "../components/ui/MetricCard";
 
 import {
     useClases
@@ -32,13 +36,18 @@ import {
     usePlanes
 } from "../hooks/usePlanes";
 
-import {
-    authService
-} from "../services/authService";
+import type {
+    Membresia
+} from "../models/Membresia";
 
 import type {
-    UsuarioActual
-} from "../services/authService";
+    HorarioApi,
+    ReporteOcupacionApi
+} from "../models/ApiModels";
+
+import {
+    membresiaService
+} from "../services/membresiaService";
 
 import {
     reporteService
@@ -47,11 +56,6 @@ import {
 import {
     isAbortError
 } from "../utils/isAbortError";
-
-import type {
-    HorarioApi,
-    ReporteOcupacionApi
-} from "../models/ApiModels";
 
 import "./Dashboard.css";
 
@@ -62,6 +66,43 @@ function fechaHoraHorario(
     return new Date(
         `${horario.fecha}T${horario.horaInicio}`
     ).getTime();
+}
+
+function estaProximaAVencer(
+    membresia: Membresia
+): boolean {
+
+    if (
+        membresia.estado !==
+        "ACTIVA"
+    ) {
+        return false;
+    }
+
+    const ahora =
+        new Date();
+
+    const fin =
+        new Date(
+            `${membresia.fechaFin}T23:59:59`
+        );
+
+    const diferencia =
+        fin.getTime() -
+        ahora.getTime();
+
+    const sieteDias =
+        7 *
+        24 *
+        60 *
+        60 *
+        1000;
+
+    return (
+        diferencia >= 0 &&
+        diferencia <=
+        sieteDias
+    );
 }
 
 export default function DashboardPage() {
@@ -78,25 +119,38 @@ export default function DashboardPage() {
     const planes =
         usePlanes();
 
-    const [
-        usuario,
-        setUsuario
-    ] =
-        useState<UsuarioActual | null>(
-            null
-        );
+    const {
+        usuario
+    } = useAuth();
 
     const [
         reporte,
         setReporte
     ] =
-        useState<ReporteOcupacionApi | null>(
+        useState<
+            ReporteOcupacionApi |
             null
+        >(
+            null
+        );
+
+    const [
+        membresias,
+        setMembresias
+    ] =
+        useState<Membresia[]>(
+            []
         );
 
     const [
         cargandoReporte,
         setCargandoReporte
+    ] =
+        useState(false);
+
+    const [
+        cargandoMembresias,
+        setCargandoMembresias
     ] =
         useState(false);
 
@@ -107,53 +161,23 @@ export default function DashboardPage() {
         useState("");
 
     const [
+        errorMembresias,
+        setErrorMembresias
+    ] =
+        useState("");
+
+    const [
         versionReporte,
         setVersionReporte
     ] =
         useState(0);
 
-    useEffect(() => {
+    const [
+        versionMembresias,
+        setVersionMembresias
+    ] =
+        useState(0);
 
-        let activo =
-            true;
-
-        authService
-            .obtenerUsuarioActual()
-            .then(
-                (actual) => {
-
-                    if (activo) {
-
-                        setUsuario(
-                            actual
-                        );
-                    }
-                }
-            )
-            .catch(
-                (err: unknown) => {
-
-                    if (activo) {
-
-                        setErrorReporte(
-                            err instanceof Error
-                                ? err.message
-                                : "No se pudo obtener el usuario actual."
-                        );
-                    }
-                }
-            );
-
-        return () => {
-            activo = false;
-        };
-
-    }, []);
-
-    /*
-     * Encontramos el horario futuro
-     * más cercano.
-     */
     const proximoHorario =
         useMemo(() => {
 
@@ -170,8 +194,12 @@ export default function DashboardPage() {
                     )
                     .sort(
                         (a, b) =>
-                            fechaHoraHorario(a) -
-                            fechaHoraHorario(b)
+                            fechaHoraHorario(
+                                a
+                            ) -
+                            fechaHoraHorario(
+                                b
+                            )
                     );
 
             return (
@@ -183,10 +211,6 @@ export default function DashboardPage() {
             horarios.data
         ]);
 
-    /*
-     * SOCIO no tiene permiso
-     * sobre /api/reportes.
-     */
     useEffect(() => {
 
         if (
@@ -232,7 +256,9 @@ export default function DashboardPage() {
             } catch (err) {
 
                 if (
-                    !isAbortError(err)
+                    !isAbortError(
+                        err
+                    )
                 ) {
 
                     setReporte(
@@ -273,11 +299,159 @@ export default function DashboardPage() {
         versionReporte
     ]);
 
+    useEffect(() => {
+
+        if (!usuario) {
+            return;
+        }
+
+        if (
+            usuario.rol ===
+            "INSTRUCTOR"
+        ) {
+
+            setMembresias(
+                []
+            );
+
+            setCargandoMembresias(
+                false
+            );
+
+            setErrorMembresias(
+                ""
+            );
+
+            return;
+        }
+
+        const controller =
+            new AbortController();
+
+        async function cargarVigencias() {
+
+            try {
+
+                setCargandoMembresias(
+                    true
+                );
+
+                setErrorMembresias(
+                    ""
+                );
+
+                const lista =
+                    usuario!.rol ===
+                    "SOCIO"
+                        ? await membresiaService
+                            .listarMias(
+                                controller.signal
+                            )
+                        : await membresiaService
+                            .listar(
+                                undefined,
+                                undefined,
+                                controller.signal
+                            );
+
+                setMembresias(
+                    lista
+                );
+
+            } catch (err) {
+
+                if (
+                    !isAbortError(
+                        err
+                    )
+                ) {
+
+                    setMembresias(
+                        []
+                    );
+
+                    setErrorMembresias(
+                        err instanceof Error
+                            ? err.message
+                            : "No se pudieron cargar las vigencias de membresías."
+                    );
+                }
+
+            } finally {
+
+                if (
+                    !controller.signal.aborted
+                ) {
+
+                    setCargandoMembresias(
+                        false
+                    );
+                }
+            }
+        }
+
+        void cargarVigencias();
+
+        return () => {
+
+            controller.abort();
+
+        };
+
+    }, [
+        usuario,
+        versionMembresias
+    ]);
+
+    const resumenMembresias =
+        useMemo(
+            () => ({
+
+                activas:
+                membresias.filter(
+                    (membresia) =>
+                        membresia.estado ===
+                        "ACTIVA"
+                ).length,
+
+                vencidas:
+                membresias.filter(
+                    (membresia) =>
+                        membresia.estado ===
+                        "VENCIDA"
+                ).length,
+
+                suspendidas:
+                membresias.filter(
+                    (membresia) =>
+                        membresia.estado ===
+                        "SUSPENDIDA"
+                ).length,
+
+                canceladas:
+                membresias.filter(
+                    (membresia) =>
+                        membresia.estado ===
+                        "CANCELADA"
+                ).length,
+
+                proximasAVencer:
+                membresias.filter(
+                    estaProximaAVencer
+                ).length
+
+            }),
+            [
+                membresias
+            ]
+        );
+
     const loading =
         clases.loading ||
         horarios.loading ||
         instructores.loading ||
-        planes.loading;
+        planes.loading ||
+        cargandoMembresias;
 
     const error =
         clases.error ||
@@ -304,11 +478,19 @@ export default function DashboardPage() {
     function actualizarDashboard() {
 
         clases.reload();
+
         horarios.reload();
+
         instructores.reload();
+
         planes.reload();
 
         setVersionReporte(
+            (actual) =>
+                actual + 1
+        );
+
+        setVersionMembresias(
             (actual) =>
                 actual + 1
         );
@@ -367,6 +549,17 @@ export default function DashboardPage() {
                     role="alert"
                 >
                     {errorReporte}
+                </div>
+
+            )}
+
+            {errorMembresias && (
+
+                <div
+                    className="dashboard-error"
+                    role="alert"
+                >
+                    {errorMembresias}
                 </div>
 
             )}
@@ -432,6 +625,131 @@ export default function DashboardPage() {
                         </div>
 
                     </section>
+
+                    {
+                        (
+                            usuario?.rol ===
+                            "ADMINISTRADOR" ||
+                            usuario?.rol ===
+                            "RECEPCION"
+                        ) && (
+
+                            <section>
+
+                                <h2 className="dashboard-section-title">
+                                    Vigencias de membresías
+                                </h2>
+
+                                <div className="dashboard-grid">
+
+                                    <MetricCard
+                                        label="Activas"
+                                        value={
+                                            resumenMembresias.activas
+                                        }
+                                        helper="Membresías vigentes"
+                                    />
+
+                                    <MetricCard
+                                        label="Vencidas"
+                                        value={
+                                            resumenMembresias.vencidas
+                                        }
+                                        helper="Vigencia finalizada"
+                                    />
+
+                                    <MetricCard
+                                        label="Suspendidas"
+                                        value={
+                                            resumenMembresias.suspendidas
+                                        }
+                                        helper="Temporalmente inactivas"
+                                    />
+
+                                    <MetricCard
+                                        label="Próximas a vencer"
+                                        value={
+                                            resumenMembresias.proximasAVencer
+                                        }
+                                        helper="Dentro de los próximos 7 días"
+                                    />
+
+                                    <MetricCard
+                                        label="Canceladas"
+                                        value={
+                                            resumenMembresias.canceladas
+                                        }
+                                        helper="Finalizadas manualmente"
+                                    />
+
+                                </div>
+
+                            </section>
+
+                        )
+                    }
+
+                    {
+                        usuario?.rol ===
+                        "SOCIO" && (
+
+                            <section>
+
+                                <h2 className="dashboard-section-title">
+                                    Mi membresía
+                                </h2>
+
+                                <div className="dashboard-grid">
+
+                                    <MetricCard
+                                        label="Activas"
+                                        value={
+                                            resumenMembresias.activas
+                                        }
+                                        helper="Membresías vigentes"
+                                    />
+
+                                    <MetricCard
+                                        label="Próximas a vencer"
+                                        value={
+                                            resumenMembresias.proximasAVencer
+                                        }
+                                        helper="Dentro de los próximos 7 días"
+                                    />
+
+                                    <MetricCard
+                                        label="Vencidas"
+                                        value={
+                                            resumenMembresias.vencidas
+                                        }
+                                        helper="Membresías finalizadas por vigencia"
+                                    />
+
+                                </div>
+
+                                <section className="dashboard-info">
+
+                                    <h2>
+                                        Estado de mi membresía
+                                    </h2>
+
+                                    <p>
+
+                                        {
+                                            resumenMembresias.activas >
+                                            0
+                                                ? "Tienes una membresía activa y puedes reservar clases sujetas a las reglas de cupo y horario."
+                                                : "Actualmente no tienes una membresía activa. Las clases restringidas no podrán reservarse hasta contar con una membresía vigente."
+                                        }
+
+                                    </p>
+
+                                </section>
+
+                            </section>
+
+                        )
+                    }
 
                     {
                         usuario?.rol !==
@@ -541,28 +859,8 @@ export default function DashboardPage() {
 
                             </section>
 
-                        )}
-
-                    {
-                        usuario?.rol ===
-                        "SOCIO" && (
-
-                            <section className="dashboard-info">
-
-                                <h2>
-                                    Panel del socio
-                                </h2>
-
-                                <p>
-                                    Puedes consultar clases,
-                                    horarios, planes y gestionar
-                                    tus reservas desde el menú
-                                    principal.
-                                </p>
-
-                            </section>
-
-                        )}
+                        )
+                    }
 
                 </>
 

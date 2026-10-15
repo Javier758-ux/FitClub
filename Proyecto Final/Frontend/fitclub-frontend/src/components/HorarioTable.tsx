@@ -2,21 +2,20 @@ import { useMemo } from "react";
 
 import type {
     ClaseApi,
-    InstructorApi,
-    HorarioApi
+    HorarioApi,
+    InstructorApi
 } from "../models/ApiModels";
 
-import {
-    Button
-} from "./ui/Button";
+import { Button } from "./ui/Button";
 
 interface HorarioTableProps {
     horarios: HorarioApi[];
     clases: ClaseApi[];
     instructores: InstructorApi[];
 
-    onEditar:
-        (id: number) => void;
+    puedeEditar: boolean;
+
+    onEditar: (id: number) => void;
 
     cargandoDetalle: boolean;
 }
@@ -25,37 +24,36 @@ export default function HorarioTable({
                                          horarios,
                                          clases,
                                          instructores,
+                                         puedeEditar,
                                          onEditar,
                                          cargandoDetalle
                                      }: HorarioTableProps) {
 
-    const clasesPorId =
-        useMemo(
-            () =>
-                new Map(
-                    clases.map(
-                        (clase) => [
-                            clase.id,
-                            clase
-                        ]
-                    )
-                ),
-            [clases]
-        );
+    const clasesPorId = useMemo(
+        () =>
+            new Map(
+                clases.map(
+                    (clase) => [
+                        clase.id,
+                        clase
+                    ]
+                )
+            ),
+        [clases]
+    );
 
-    const instructoresPorId =
-        useMemo(
-            () =>
-                new Map(
-                    instructores.map(
-                        (instructor) => [
-                            instructor.id,
-                            instructor
-                        ]
-                    )
-                ),
-            [instructores]
-        );
+    const instructoresPorId = useMemo(
+        () =>
+            new Map(
+                instructores.map(
+                    (instructor) => [
+                        instructor.id,
+                        instructor
+                    ]
+                )
+            ),
+        [instructores]
+    );
 
     return (
         <div className="horarios-table-wrapper">
@@ -63,6 +61,7 @@ export default function HorarioTable({
             <table className="horarios-table">
 
                 <thead>
+
                 <tr>
                     <th>ID</th>
                     <th>Clase</th>
@@ -70,59 +69,65 @@ export default function HorarioTable({
                     <th>Fecha</th>
                     <th>Inicio</th>
                     <th>Fin</th>
-                    <th>Acciones</th>
+
+                    {puedeEditar && (
+                        <th>Acciones</th>
+                    )}
                 </tr>
+
                 </thead>
 
                 <tbody>
 
-                {horarios.map(
-                    (horario) => {
+                {horarios.map((horario) => {
 
-                        const clase =
-                            clasesPorId.get(
-                                horario.claseId
-                            );
+                    const clase =
+                        clasesPorId.get(
+                            horario.claseId
+                        );
 
-                        const instructor =
-                            instructoresPorId.get(
-                                horario.instructorId
-                            );
+                    const instructor =
+                        instructoresPorId.get(
+                            horario.instructorId
+                        );
 
-                        return (
-                            <tr key={horario.id}>
+                    return (
+                        <tr key={horario.id}>
+
+                            <td>
+                                {horario.id}
+                            </td>
+
+                            <td>
+                                {
+                                    clase?.nombre ??
+                                    `Clase #${horario.claseId}`
+                                }
+                            </td>
+
+                            <td>
+                                {
+                                    instructor?.nombre ??
+                                    `Instructor #${horario.instructorId}`
+                                }
+                            </td>
+
+                            <td>
+                                {horario.fecha}
+                            </td>
+
+                            <td>
+                                {horario.horaInicio}
+                            </td>
+
+                            <td>
+                                {horario.horaFin}
+                            </td>
+
+                            {puedeEditar && (
 
                                 <td>
-                                    {horario.id}
-                                </td>
 
-                                <td>
-                                    {
-                                        clase?.nombre ??
-                                        `Clase #${horario.claseId}`
-                                    }
-                                </td>
-
-                                <td>
-                                    {
-                                        instructor?.nombre ??
-                                        `Instructor #${horario.instructorId}`
-                                    }
-                                </td>
-
-                                <td>
-                                    {horario.fecha}
-                                </td>
-
-                                <td>
-                                    {horario.horaInicio}
-                                </td>
-
-                                <td>
-                                    {horario.horaFin}
-                                </td>
-
-                                <td>
                                     <Button
                                         type="button"
                                         variant="ghost"
@@ -137,16 +142,19 @@ export default function HorarioTable({
                                     >
                                         Editar
                                     </Button>
+
                                 </td>
 
-                            </tr>
-                        );
-                    }
-                )}
+                            )}
+
+                        </tr>
+                    );
+                })}
 
                 </tbody>
 
             </table>
+
         </div>
     );
 }
