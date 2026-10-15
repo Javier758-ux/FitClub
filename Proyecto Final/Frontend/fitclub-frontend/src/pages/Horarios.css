@@ -1,0 +1,151 @@
+.horarios-page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.horarios-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.horarios-header h1 {
+    margin: 0 0 8px;
+}
+
+.horarios-header p {
+    margin: 0;
+    color: #64748b;
+}
+
+.horarios-header-actions,
+.horarios-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.horarios-filters {
+    display: grid;
+    grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+    gap: 16px;
+
+    padding: 16px;
+
+    background: #ffffff;
+
+    border:
+            1px solid #e2e8f0;
+
+    border-radius: 10px;
+}
+
+.horarios-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    border:
+            1px solid #e2e8f0;
+
+    border-radius: 10px;
+}
+
+.horarios-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background: #ffffff;
+}
+
+.horarios-table th,
+.horarios-table td {
+    padding: 14px;
+
+    text-align: left;
+
+    border-bottom:
+            1px solid #e2e8f0;
+}
+
+.horarios-table th {
+    background: #eff6ff;
+
+    color: #1e40af;
+}
+
+.horarios-table
+tbody
+tr:hover {
+    background: #f8fafc;
+}
+
+.horarios-btn-edit,
+.horarios-btn-delete {
+    padding: 8px 11px;
+
+    border: 0;
+
+    border-radius: 6px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.horarios-btn-edit {
+    background: #dbeafe;
+
+    color: #1d4ed8;
+}
+
+.horarios-btn-delete {
+    background: #fee2e2;
+
+    color: #991b1b;
+}
+
+.horarios-btn-delete:disabled,
+.horarios-btn-edit:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+.horarios-success,
+.horarios-error {
+    padding: 12px 16px;
+
+    border-radius: 8px;
+}
+
+.horarios-success {
+    color: #166534;
+
+    background: #dcfce7;
+}
+
+.horarios-error {
+    color: #991b1b;
+
+    background: #fee2e2;
+}
+
+.horarios-note {
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+@media (max-width: 720px) {
+
+    .horarios-filters {
+        grid-template-columns: 1fr;
+    }
+
+}

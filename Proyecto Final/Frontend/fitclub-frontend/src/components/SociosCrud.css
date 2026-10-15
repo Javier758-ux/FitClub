@@ -1,0 +1,176 @@
+.socios-crud {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.socios-crud__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.socios-crud__header h1 {
+    margin: 0 0 8px;
+    color: #1e293b;
+}
+
+.socios-crud__header p {
+    margin: 0;
+    color: #64748b;
+}
+
+.socios-crud__btn-primary,
+.socios-crud__btn-secondary,
+.socios-crud__btn-edit,
+.socios-crud__btn-delete {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.socios-crud__btn-primary {
+    color: white;
+    background: #2563eb;
+}
+
+.socios-crud__btn-primary:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.socios-crud__btn-secondary {
+    color: #334155;
+    background: white;
+    border-color: #cbd5e1;
+}
+
+.socios-crud__btn-edit {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.socios-crud__btn-delete {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.socios-crud button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.socios-crud__form-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.socios-crud__form-card h2 {
+    margin: 0 0 20px;
+}
+
+.socios-crud__form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.socios-crud__field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.socios-crud__field label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.socios-crud__field input {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    color: #1e293b;
+    background: white;
+}
+
+.socios-crud__field input:focus {
+    outline: 2px solid #93c5fd;
+}
+
+.socios-crud__form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.socios-crud__table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.socios-crud__table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.socios-crud__table th,
+.socios-crud__table td {
+    padding: 14px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.socios-crud__table th {
+    background: #eff6ff;
+    color: #1e40af;
+}
+
+.socios-crud__table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.socios-crud__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.socios-crud__success {
+    padding: 12px 16px;
+    color: #166534;
+    background: #dcfce7;
+    border-radius: 8px;
+}
+
+.socios-crud__error {
+    padding: 12px 16px;
+    color: #991b1b;
+    background: #fee2e2;
+    border-radius: 8px;
+}
+
+.socios-crud__note {
+    color: #64748b;
+    font-size: 13px;
+}
+
+@media (max-width: 720px) {
+    .socios-crud__form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .socios-crud__form-card {
+        padding: 16px;
+    }
+}

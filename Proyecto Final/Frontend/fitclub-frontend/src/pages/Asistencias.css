@@ -1,0 +1,88 @@
+.asistencias-page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.asistencias-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.asistencias-header h1 {
+    margin: 0 0 8px;
+}
+
+.asistencias-header p {
+    margin: 0;
+    color: var(--color-muted);
+}
+
+.asistencias-actions,
+.asistencias-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.asistencias-success,
+.asistencias-error,
+.asistencias-warning {
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+}
+
+.asistencias-success {
+    color: var(--color-success);
+    background:
+            var(--color-success-background);
+}
+
+.asistencias-error {
+    color: var(--color-danger);
+    background:
+            var(--color-danger-background);
+}
+
+.asistencias-warning {
+    color: var(--color-warning);
+    background:
+            var(--color-warning-background);
+}
+
+.asistencias-instructor-panel {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+
+    padding: 16px;
+
+    border:
+            1px solid
+            var(--color-border-light);
+
+    border-radius:
+            var(--radius-lg);
+
+    background:
+            var(--color-surface);
+}
+
+.asistencias-note {
+    color: var(--color-muted);
+    font-size: 13px;
+}
+
+@media (max-width: 720px) {
+
+    .asistencias-instructor-panel {
+        grid-template-columns: 1fr;
+    }
+
+}
