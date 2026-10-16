@@ -1,0 +1,275 @@
+<mxfile host="app.diagrams.net" modified="2026-10-16T00:00:00.000Z" agent="claude" version="24.0.0" type="device">
+  <diagram name="Mapa Expo y Async-Await - FitClub (vertical)" id="mapa-expo-async-fitclub-vertical">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="central" value="¿Cómo Expo muestra datos de una API REST sin bloquear la interfaz?
+(FitClub: Socio 1:N Membresía)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#1A2B4C;strokeColor=#0D1B33;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="3693" y="0" width="320" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="A0" value="A · Plataforma: Expo y React Native" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#0F766E;strokeColor=#0B5750;fontColor=#FFFFFF;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1490" y="220" width="260" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="A1" value="React Native: interfaces móviles con componentes nativos (sin HTML)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="190" y="440" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="A11" value="React: componentes, props, estado y hooks — se escribe en JavaScript (lógica) y TypeScript (tipos estáticos)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="40" y="660" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="A10" value="Ejemplo 1 — Dispositivo físico: localhost del teléfono ≠ localhost de la PC" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="340" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="A2" value="Expo: framework y ecosistema sobre RN (CLI, herramientas, EAS)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="440" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="A3" value="Primitivas: View, Text, TextInput, Pressable, FlatList" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="640" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="A4" value="Hooks: useState (estado local) y useEffect (sincronizar con sistemas externos)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="2740" y="440" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="A5" value="Expo Router: navegación por archivos (_layout.tsx, [id].tsx, Link, router.push)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="940" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="A12" value="EAS Build: genera binarios de la app; no es lo mismo que publicarla" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="A6" value="Expo Go (módulos limitados) vs Development build (módulos nativos)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="A7" value="Expo Web: reutiliza React Native Web; APIs nativas pueden faltar" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="1840" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="A8" value="create-expo-app, Metro y Fast Refresh" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="2140" y="660" width="260" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="A9" value="Error conceptual: Expo no es sinónimo de React Web ni es backend" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#CCFBF1;strokeColor=#0F766E;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="2440" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="B0" value="B · Modelo de ejecución: síncrono vs asíncrono" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#4338CA;strokeColor=#312693;fontColor=#FFFFFF;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="3965" y="220" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="B1" value="Síncrono: una instrucción tras otra; puede bloquear la UI" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="3340" y="440" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="B2" value="Asíncrono: inicia operaciones que terminan después, sin bloquear la UI" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="4015" y="440" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="B3" value="Call stack y event loop coordinan la ejecución" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="4540" y="440" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="B7" value="Secuencia 1 — console.log A, setTimeout 0ms B, Promise.then C, console.log D → orden real A, D, C, B" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="4540" y="660" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="B8" value="Error conceptual: setTimeout(…, 0) no es ejecución inmediata" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="4540" y="880" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="B4" value="Promise: pendiente, cumplida o rechazada (pending/fulfilled/rejected)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="3790" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="B5" value="async (siempre devuelve Promise) y await (pausa la continuación local)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="3790" y="880" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="B6" value="try / catch / finally: errores y limpieza (setLoading(false))" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="3640" y="1100" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="B10" value="Error conceptual: await no bloquea por sí solo toda la aplicación" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="3940" y="1100" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="B9" value="Promise.all (paralelo, falla si una rechaza) vs secuencial (tiempo T1+T2)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#E0E7FF;strokeColor=#4338CA;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="4240" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="C0" value="C · Flujo real: consumo de API REST (FitClub)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#B45309;strokeColor=#8A3F08;fontColor=#FFFFFF;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="5715" y="220" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="C1" value="Modelo: Socio(id, nombre, email, telefono) 1:N Membresía(id, tipo, fechaInicio, fechaFin, precio, socioId)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="5140" y="440" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="C11" value="Error conceptual: 1:N no determina una ruta REST ni garantiza que existan membresías" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="5140" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="C2" value="Secuencia 2 — Recorrido: SociosPage → useSocios (useEffect) → async → apiClient.get → SocioController → SocioService → PostgreSQL → JSON → estado → SocioTable" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="5665" y="440" width="260" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="C12" value="Ejemplo 2 — Endpoint real verificado en Postman (PUT 200, DELETE 204, 404 y 409 probados)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="5440" y="660" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="C3" value="fetch: API de solicitudes HTTP que devuelve una Promise (la usa tu apiClient.ts)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="5890" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="C4" value="response.ok identifica respuestas exitosas 2xx" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="5740" y="880" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="C5" value="Si !response.ok: throw new Error(...) — así lo hace tu apiClient.ts" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="5740" y="1100" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="C6" value="Escenario de error — HTTP 404/500 no rechazan fetch automáticamente" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="5740" y="1320" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="C7" value="Ejemplo 3 — deleteSocio(id)/getMembresias(): fetch + response.ok + throw" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="6040" y="880" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="C8" value="Estados de UI: loading, success, empty y error (igual que en SociosPage/MembresiasPage)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="6340" y="440" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="C9" value="AbortController: cancela solicitudes obsoletas (el signal opcional de apiClient.get)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="6340" y="660" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="C10" value="Race condition: una respuesta tardía sobrescribe la vigente" style="rounded=1;whiteSpace=wrap;html=1;arcSize=12;fontSize=11;align=center;verticalAlign=middle;fillColor=#FEF3C7;strokeColor=#B45309;fontColor=#1f2328;" vertex="1" parent="1">
+          <mxGeometry x="6340" y="880" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="se construye con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="central" target="A0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="incluye" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A0" target="A1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="se construye con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A1" target="A11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="en teléfono exige" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A1" target="A10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="amplía a RN con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A0" target="A2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="ofrece" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A2" target="A3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="gestiona datos con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A0" target="A4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="navega con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A2" target="A5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="ofrece" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A2" target="A12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="se prueba con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A2" target="A6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="alcanza el navegador con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A2" target="A7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="se inicia con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A2" target="A8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="aclara que" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#0F766E;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="A2" target="A9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="se razona con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="central" target="B0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="contrasta con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B0" target="B1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="contrasta con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B0" target="B2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" value="se coordina mediante" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B0" target="B3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" value="ejemplifica" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B3" target="B7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" value="explica que" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B7" target="B8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" value="se representa con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B2" target="B4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" value="se escribe con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B4" target="B5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e22" value="se controla con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B5" target="B6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" value="aclara que" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B5" target="B10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" value="organiza con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#4338CA;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="B2" target="B9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" value="se traza en" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="central" target="C0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e26" value="parte del modelo" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C0" target="C1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e27" value="aclara que" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C1" target="C11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e28" value="dispara el recorrido" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C0" target="C2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e29" value="se comprueba en" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C2" target="C12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e30" value="consume con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C2" target="C3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e31" value="se valida con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C3" target="C4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e32" value="obliga a lanzar" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C4" target="C5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e33" value="porque" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C5" target="C6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e34" value="se aplica en" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C3" target="C7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e35" value="alimenta" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C0" target="C8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e36" value="protege con" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C8" target="C9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e37" value="previene" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=9;strokeColor=#B45309;strokeWidth=1.5;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="C9" target="C10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x1" value="useEffect no recibe directamente una función async" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="A4" target="B5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x2" value="renderiza los estados en pantalla" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="A1" target="C8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x3" value="afecta la URL que consume fetch" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="A10" target="C3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x4" value="fetch devuelve una Promise" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="B4" target="C3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x5" value="captura el error lanzado" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="B6" target="C5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x6" value="decide cómo pedir socios y membresías" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="B9" target="C7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x7" value="permite el recorrido sin bloquear la UI" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="B2" target="C2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x8" value="cancela el await pendiente" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="C9" target="B5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x9" value="ocurre por la naturaleza asíncrona" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="C10" target="B2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x10" value="FlatList muestra success / empty" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="A3" target="C8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x11" value="advierte que el orden no es el visual del código" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="B8" target="C2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x12" value="exige manejar el throw en el catch" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="C6" target="B6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="x13" value="aclara que el backend vive aparte (Spring Boot)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;dashPattern=8 4;strokeColor=#CC0000;fontColor=#CC0000;fontSize=9;strokeWidth=1.2;endArrow=open;endFill=1;" edge="1" parent="1" source="A9" target="C0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
